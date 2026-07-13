@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나만의 드림 아지트</title>
+  
+  <!-- Tailwind CSS 로드 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 상업용 무료 한글 폰트 불러오기 (고운 바탕) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 타이틀용: 오케이티콘의 'Ok단단체' 적용 */
+    @font-face {
+      font-family: 'OkDandan';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/OkDanDan-Bold.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body {
+      font-family: 'Gowun Batang', serif;
+      background-color: #ffffff;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    
+    .font-sans-ui {
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    .font-title {
+      font-family: 'OkDandan', sans-serif;
+      letter-spacing: -0.01em;
+    }
+
+    /* 통일된 시그니처 그리스 블루 스키마 */
+    .greece-blue {
+      color: #0076FF;
+    }
+    .bg-greece-blue {
+      background-color: #0076FF;
+    }
+    .border-greece-blue {
+      border-color: #0076FF;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* 부드러운 호버 트랜지션 */
+    .smooth-transition {
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 미니멀 이퀄라이저 애니메이션 */
+    @keyframes eqBar {
+      0%, 100% { height: 4px; }
+      50% { height: 18px; }
+    }
+    .eq-bar {
+      animation: eqBar 0.8s infinite ease-in-out;
+    }
+
+    /* 커스텀 스크롤바 디자인 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #ffffff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #0076FF;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="selection:bg-blue-100">
+
+  <script>
+    // Web Audio API 기반 오디오 엔진 (기계식 청축 사운드 합성기)
+    let audioCtx = null;
+    let lofiInterval = null;
+    let isPlayingLofi = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    // 실제 청축(Blue Switch) 고유의 가볍고 카랑카랑한 클릭음 합성 알고리즘
+    function playBlueSwitch() {
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+        
+        // 1. 하이 피치 금속편 스프링 튕기는 클릭 바 소리 (찰칵)
+        const clickOsc = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        clickOsc.type = 'sine';
+        clickOsc.frequency.setValueAtTime(2600, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(1500, now + 0.01);
+        
+        clickGain.gain.setValueAtTime(0.06, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+
+        // 2. 보강판 타격 베이스 노이즈 (탁)
+        const thudOsc = audioCtx.createOscillator();
+        const thudGain = audioCtx.createGain();
+        thudOsc.type = 'triangle';
+        thudOsc.frequency.setValueAtTime(150, now);
+        thudOsc.frequency.exponentialRampToValueAtTime(55, now + 0.05);
+
+        thudGain.gain.setValueAtTime(0.25, now);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        // 로우패스 필터로 플라스틱 키캡 통울림 하우징 질감 확보
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1700;
+
+        clickOsc.connect(clickGain);
+        clickGain.connect(filter);
+
+        thudOsc.connect(thudGain);
+        thudGain.connect(filter);
+
+        filter.connect(audioCtx.destination);
+
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.015);
+        thudOsc.start(now);
+        thudOsc.stop(now + 0.06);
+      } catch (e) {
+        console.warn("오디오 플레이 장치 에러:", e);
+      }
+    }
+
+    // Lofi 힐링 배경 멜로디 발생 장치
+    function toggleLofiMusic() {
+      initAudio();
+      const btn = document.getElementById('musicBtn');
+      const eqActive = document.getElementById('eqAnimation');
+      const eqStatic = document.getElementById('eqStatic');
+
+      if (isPlayingLofi) {
+        isPlayingLofi = false;
+        if (lofiInterval) {
+          clearInterval(lofiInterval);
+          lofiInterval = null;
+        }
+        btn.classList.remove('bg-blue-500', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700');
+        eqActive.classList.add('hidden');
+        eqStatic.classList.remove('hidden');
+        showToast("아지트의 백그라운드 Lofi 사운드를 일시정지합니다.");
+      } else {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        isPlayingLofi = true;
+        btn.classList.add('bg-blue-500', 'text-white');
+        btn.classList.remove('bg-white', 'text-slate-700');
+        eqActive.classList.remove('hidden');
+        eqStatic.classList.add('hidden');
+        showToast("방 안에 흐르는 아늑한 레코드 풍의 Lofi 음악이 시작되었습니다.");
+
+        playLofiLoop();
+      }
+    }
+
+    function playLofiLoop() {
+      if (!isPlayingLofi) return;
+
+      const playPianoChord = () => {
+        if (!isPlayingLofi) return;
+        const now = audioCtx.currentTime;
+        const chords = [
+          [130.81, 164.81, 196.00, 246.94], // Cmaj7
+          [110.00, 130.81, 164.81, 220.00], // Am7
+          [146.83, 174.61, 220.00, 261.63], // Dm7
+          [98.00, 146.83, 196.00, 246.94]   // G7
+        ];
+        const notes = chords[Math.floor(Math.random() * chords.length)];
+
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.15);
+          
+          // Wow & Flutter 효과 시뮬레이션 (아날로그 미세 진동)
+          const vibrato = audioCtx.createOscillator();
+          const vibratoGain = audioCtx.createGain();
+          vibrato.frequency.setValueAtTime(5.0, now);
+          vibratoGain.gain.setValueAtTime(0.8, now);
+          vibrato.connect(vibratoGain);
+          vibratoGain.connect(osc.frequency);
+
+          gain.gain.setValueAtTime(0, now + i * 0.15);
+          gain.gain.linearRampToValueAtTime(0.04, now + i * 0.15 + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.15 + 3.0);
+
+          const lp = audioCtx.createBiquadFilter();
+          lp.type = 'lowpass';
+          lp.frequency.setValueAtTime(700, now);
+
+          osc.connect(lp);
+          lp.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          vibrato.start(now);
+          osc.start(now + i * 0.15);
+          osc.stop(now + 3.2);
+          vibrato.stop(now + 3.2);
+        });
+      };
+
+      playPianoChord();
+      lofiInterval = setInterval(() => {
+        if (!isPlayingLofi) return;
+        playPianoChord();
+      }, 4500);
+    }
+
+    // 범용 알림 토스트 발생기
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-900/90 text-white text-xs px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto border border-white/10 font-sans-ui";
+      toast.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-5px]', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+  </script>
+
+  <!-- 토스트 알림창 고정 컨테이너 -->
+  <div id="toastContainer" class="fixed top-20 right-6 z-[999] flex flex-col gap-2 pointer-events-none max-w-xs w-full"></div>
+
+  <!-- 우측 상단 힐링 사운드 온/오프 제어 위젯 -->
+  <div class="fixed top-6 right-6 z-[99] flex items-center gap-2 font-sans-ui">
+    <button id="musicBtn" onclick="toggleLofiMusic()" class="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-md hover:scale-105 transition-all text-slate-700" title="BGM 켜고 끄기">
+      <svg id="eqStatic" class="w-5 h-5 text-[#0076FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path>
+      </svg>
+      <div id="eqAnimation" class="flex items-end gap-0.5 h-[18px] hidden">
+        <span class="eq-bar w-[2px] bg-[#0076FF]" style="animation-delay: 0.1s;"></span>
+        <span class="eq-bar w-[2px] bg-[#0076FF]" style="animation-delay: 0.3s;"></span>
+        <span class="eq-bar w-[2px] bg-[#0076FF]" style="animation-delay: 0.5s;"></span>
+        <span class="eq-bar w-[2px] bg-[#0076FF]" style="animation-delay: 0.2s;"></span>
+      </div>
+    </button>
+  </div>
+
+  <!-- 메인 GNB 내비게이션 바 -->
+  <nav class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-blue-50 z-50 font-sans-ui">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="font-title text-xl tracking-wide greece-blue">
+        나의 드림 아지트
+      </a>
+      <div class="flex items-center gap-6 text-xs font-semibold text-slate-500">
+        <a href="#about" class="hover:text-blue-500 transition-colors">아지트 소개</a>
+        <a href="#current" class="hover:text-blue-500 transition-colors">나의 도구들</a>
+        <a href="#wishlist" class="hover:text-blue-500 transition-colors">위시리스트</a>
+        <a href="#guestbook" class="hover:text-blue-500 transition-colors">방명록</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 1. 메인 히어로 섹션 (단발 머리 여성 해질녘 뒷모습 일러스트 & 타이틀 영역) -->
+  <header id="hero" class="relative min-h-[92vh] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50/50 to-white px-6 py-12 overflow-hidden">
+    <div class="max-w-4xl w-full text-center z-10 flex flex-col items-center">
+      
+      <!-- 독창적인 전문 백터 디자인의 2D 단발머리 오버이어 헤드폰 여성 뒷모습 일러스트 (창가 해질녘 노을빛 반사광) -->
+      <div class="w-full max-w-sm mb-10 relative group">
+        <!-- 하이라이팅 글로우 효과 -->
+        <div class="absolute inset-0 bg-blue-100/50 rounded-full blur-2xl transform scale-90 opacity-70 group-hover:opacity-90 transition-opacity"></div>
+        
+        <svg class="w-full h-auto rounded-[40px] border-4 border-slate-800 shadow-2xl relative bg-[#1E293B] smooth-transition" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- 해 질 녘 그라데이션 선명화 -->
+            <linearGradient id="sunset-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1E293B"/>
+              <stop offset="45%" stop-color="#475569"/>
+              <stop offset="75%" stop-color="#CA8A04"/>
+              <stop offset="100%" stop-color="#EA580C"/>
+            </linearGradient>
+            <!-- 머리카락 섀도우 -->
+            <linearGradient id="hair-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0F172A"/>
+              <stop offset="100%" stop-color="#1E293B"/>
+            </linearGradient>
+            <!-- 금빛 햇살 광선 -->
+            <linearGradient id="sunlight-beam" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#F97316" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 해 질 녘 그라데이션 가득 채운 창밖 배경 -->
+          <rect width="320" height="320" fill="url(#sunset-sky)" rx="36"/>
+
+          <!-- 무드 있는 고해상도 아파트 창문 그리드 구조선 -->
+          <line x1="220" y1="10" x2="220" y2="240" stroke="#475569" stroke-width="2.5" opacity="0.4"/>
+          <line x1="150" y1="60" x2="310" y2="60" stroke="#475569" stroke-width="2.5" opacity="0.4"/>
+          <line x1="150" y1="140" x2="310" y2="140" stroke="#475569" stroke-width="2.5" opacity="0.3"/>
+          
+          <!-- 따사롭고 포근한 햇살 입체 폴리곤 빔 -->
+          <polygon points="320,40 320,180 140,320 70,320" fill="url(#sunlight-beam)"/>
+
+          <!-- 방 한쪽의 싱그러운 식물 일러스트 실루엣 -->
+          <path d="M15,320 C10,285 28,255 45,255 C55,255 60,270 55,290 C50,305 45,320 15,320 Z" fill="#0F172A" opacity="0.45"/>
+          <path d="M5,320 C-5,290 8,265 20,265 C28,265 32,278 28,298 C24,308 20,320 5,320 Z" fill="#0F172A" opacity="0.25"/>
+
+          <!-- 단단하고 어두운 우드 텍스쳐 책상 구조면 -->
+          <rect y="312" width="320" height="8" fill="#0F172A"/>
+
+          <!-- [전문 백터] 단발머리 인물 해질녘 뒷모습 몸체 -->
+          <path d="M95,320 C95,275 115,245 160,245 C205,245 225,275 225,320 Z" fill="#1E293B" stroke="#0F172A" stroke-width="3.5"/>
+          <!-- 옷 넥카라 그림자 엣지 및 목덜미 실루엣 -->
+          <path d="M128,245 C128,228 138,218 160,218 C182,218 192,228 192,245" stroke="#0F172A" stroke-width="3.5" fill="none"/>
+
+          <!-- 자연스러운 단발 헤어스타일 (풍성하고 정교한 머릿결 굴곡) -->
+          <path d="M110,205 C108,135 125,115 160,115 C195,115 212,135 210,205 C210,225 195,230 160,230 C125,230 110,225 110,205 Z" fill="url(#hair-gradient)" stroke="#0F172A" stroke-width="3.5"/>
+          
+          <!-- 단발머리 모발 끝자락 삐침 컷과 율동감 데코선 -->
+          <path d="M110,205 L113,215 L121,210 L129,218 L142,213 L152,219 L165,212 L178,218 L188,210 L198,217 L210,205" fill="url(#hair-gradient)"/>
+          <path d="M125,140 C120,165 122,185 130,200" stroke="#1E293B" stroke-width="1.5" opacity="0.3"/>
+          <path d="M195,140 C200,165 198,185 190,200" stroke="#1E293B" stroke-width="1.5" opacity="0.3"/>
+
+          <!-- 세련되고 정교한 오버이어 하이파이 헤드폰 구조 -->
+          <!-- 바디 헤드밴드 -->
+          <path d="M118,155 C118,120 130,110 160,110 C190,110 202,120 202,155" stroke="#0076FF" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+          <path d="M122,155 C122,125 134,115 160,115 C186,115 198,125 198,155" stroke="#0F172A" stroke-width="2" fill="none" stroke-linecap="round"/>
+          
+          <!-- 좌측 인체공학 유닛 이어컵 구조 -->
+          <rect x="104" y="153" width="16" height="34" rx="8" fill="#0076FF" stroke="#0F172A" stroke-width="3.5"/>
+          <rect x="110" y="159" width="4" height="22" rx="2" fill="#FFFFFF" opacity="0.9"/>
+          <!-- 우측 인체공학 유닛 이어컵 구조 -->
+          <rect x="200" y="153" width="16" height="34" rx="8" fill="#0076FF" stroke="#0F172A" stroke-width="3.5"/>
+          <rect x="206" y="159" width="4" height="22" rx="2" fill="#FFFFFF" opacity="0.9"/>
+
+          <!-- 우주의 밤하늘처럼 쏟아지는 노을 햇살 반사광 하이라이트 (빛나는 오렌지색 선율) -->
+          <path d="M204,163 C206,178 208,188 207,203 C206,208 202,205 200,201 C203,188 202,178 200,163 Z" fill="#F59E0B" opacity="0.85"/>
+          <path d="M116,163 C114,178 112,188 113,203 C114,208 118,205 120,201 C117,188 118,178 120,163 Z" fill="#F59E0B" opacity="0.25"/>
+        </svg>
+      </div>
+
+      <!-- 타이틀 텍스트 -->
+      <h1 class="font-title text-4xl sm:text-5xl md:text-6xl tracking-tight leading-tight text-slate-800 mb-2">
+        나만의 공간 꾸미기
+      </h1>
+      
+      <!-- 타이틀 아래 조그마한 키보드 데코 아이콘 추가 -->
+      <div class="mb-6 flex items-center justify-center">
+        <svg class="w-8 h-8 text-[#0076FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" stroke-width="2.5" fill="none"></rect>
+          <line x1="5" y1="9" x2="7" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+          <line x1="10" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+          <line x1="17" y1="9" x2="19" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+          <line x1="5" y1="14" x2="19" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line>
+        </svg>
+      </div>
+
+      <!-- 감성 서브타이틀 -->
+      <p class="font-sans-ui text-base sm:text-lg text-slate-500 max-w-lg leading-relaxed mb-12">
+        손끝에서 착 감기는 기계식 청축 소리와, 방 안 공간을 가득 메우는 묵직한 중저음 스피커 소리. 
+        이 방 안 한 구석에서 가꾸어 나갈 성실한 몰입과 로망의 조각들.
+      </p>
+
+      <!-- 범용 "클릭하세요" 버튼 모듈 (마우스 근접 센서 & 물결 내비게이션 트리거) -->
+      <div class="relative flex flex-col items-center justify-center">
+        <button data-next="#about" class="click-me-btn relative w-32 h-32 rounded-full border-2 border-slate-200 flex flex-col items-center justify-center bg-white shadow-xl cursor-pointer select-none smooth-transition">
+          <span class="ripple-ring-1 absolute inset-0 rounded-full border-4 border-blue-200/50 scale-100 opacity-0 pointer-events-none"></span>
+          <span class="ripple-ring-2 absolute inset-0 rounded-full border border-blue-400/40 scale-100 opacity-0 pointer-events-none"></span>
+          
+          <span class="font-sans-ui text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Explore</span>
+          <span class="font-title text-base greece-blue">클릭하세요</span>
+        </button>
+        <span class="text-xs text-slate-400 mt-4 font-sans-ui">* 마우스를 가져간 후 클릭하여 다음 아지트로 이동해 보세요.</span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 글로벌 고정 파티클 캔버스 (마우스 센싱 및 키캡 자판 폭발 효과) -->
+  <canvas id="globalParticleCanvas" class="fixed inset-0 pointer-events-none w-full h-full z-[100]"></canvas>
+
+  <!-- 2. 아지트 스토리텔링 및 소개 에세이 섹션 -->
+  <section id="about" class="min-h-screen py-24 bg-white border-t border-blue-50/50 flex flex-col justify-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="space-y-12 text-center">
+        
+        <div class="space-y-4">
+          <span class="text-xs font-bold uppercase tracking-widest text-blue-500 font-sans-ui">나의 공간, 나의 아지트</span>
+          <h2 class="font-title text-3xl sm:text-4xl text-slate-800 leading-tight">
+            하루가 머무는 작은 PC방 겸 작업실
+          </h2>
+        </div>
+        
+        <div class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto space-y-6">
+          <p>
+            남들에겐 그저 스쳐 지나가는 평범한 컴퓨터 테이블에 불과하겠지만, 저에게 이곳은 가장 편안하고 진솔한 제 모습을 발견하는 특별한 비밀기지입니다.
+          </p>
+          <p class="border-l-4 border-[#0076FF] pl-6 py-4 text-left font-bold bg-blue-50/30 rounded-r-2xl max-w-xl mx-auto">
+            "게임 한 판 이기고 나서 의자에서 일어나지 않은 채 바로 꺼내 마시는 시원한 캔 콜라, 공간 전체를 묵직하고 가득 메우는 힐링 Lofi 음악."
+          </p>
+          <p>
+            비록 아직은 가지고 싶은 장비와 가구들이 위시리스트 칸 속에 머무는 소박한 셋업이지만, 언젠가 저만의 완벽한 성지를 다 채울 때까지 하루하루의 성장을 담아 가꾸어 가겠습니다.
+          </p>
+        </div>
+
+        <!-- 두 번째 "클릭하세요" 이동 버튼 -->
+        <div class="pt-8 flex flex-col items-center">
+          <button data-next="#current" class="click-me-btn relative w-28 h-28 rounded-full border-2 border-slate-200 flex flex-col items-center justify-center bg-white shadow-lg cursor-pointer select-none smooth-transition">
+            <span class="ripple-ring-1 absolute inset-0 rounded-full border-4 border-blue-200/50 scale-100 opacity-0 pointer-events-none"></span>
+            <span class="ripple-ring-2 absolute inset-0 rounded-full border border-blue-400/40 scale-100 opacity-0 pointer-events-none"></span>
+            
+            <span class="font-sans-ui text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Next</span>
+            <span class="font-title text-sm greece-blue">클릭하세요</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 취향을 채워 넣은 소중한 애장품 쇼케이스 -->
+  <section id="current" class="min-h-screen py-24 bg-slate-50 border-t border-slate-100 flex flex-col justify-center">
+    <div class="max-w-6xl mx-auto px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-widest text-blue-500 font-sans-ui">My Favorite Instruments</span>
+        <h2 class="font-title text-3xl sm:text-4xl text-slate-800">책상 위를 지켜주는 애장 파트너</h2>
+        <p class="text-sm text-slate-400 font-sans-ui font-medium">
+          각 도구 카드에 마우스를 대면 전문 2D 라이브 그래픽 효과가 반응합니다.
+        </p>
+      </div>
+
+      <!-- 애장품 3종 레이아웃 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- 카드 1: 기계식 키보드 -->
+        <div class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-[#0076FF] transition-all duration-300 flex flex-col justify-between cursor-pointer"
+             onmouseenter="playBlueSwitch()">
+          <div>
+            <!-- 쿠르츠게작트 스타일 키보드 SVG 일러스트 -->
+            <div class="h-44 bg-blue-50/50 rounded-2xl mb-6 flex items-center justify-center border border-slate-100 overflow-hidden">
+              <svg class="w-32 h-32 group-hover:scale-105 transition-transform" viewBox="0 0 100 100" fill="none">
+                <rect x="5" y="35" width="90" height="30" rx="6" fill="#ffffff" stroke="#0076FF" stroke-width="2.5"/>
+                <!-- 키캡 배치 -->
+                <rect class="key-top-1" x="12" y="41" width="10" height="8" rx="1.5" fill="#0076FF"/>
+                <rect class="key-top-2" x="25" y="41" width="10" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+                <rect class="key-top-1" x="38" y="41" width="10" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+                <rect class="key-top-2" x="51" y="41" width="10" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+                <rect class="key-top-1" x="64" y="41" width="10" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+                <rect class="key-top-2" x="77" y="41" width="11" height="8" rx="1.5" fill="#0076FF"/>
+
+                <rect class="key-top-2" x="12" y="52" width="12" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+                <rect class="key-top-1" x="28" y="52" width="44" height="8" rx="2" fill="#0076FF"/>
+                <rect class="key-top-2" x="76" y="52" width="12" height="8" rx="1.5" fill="#E2E8F0" stroke="#0076FF"/>
+              </svg>
+            </div>
+            <h3 class="font-title text-xl text-slate-800 mb-2">갈축 & 청축 키보드</h3>
+            <p class="text-sm text-slate-500 leading-relaxed font-sans-ui">
+              타자 한 글자마다 경쾌하게 솟아오르는 손맛은 장시간 타건에도 작업의 활력이 되고 마음을 들뜨게 해 줍니다.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-dashed border-slate-100 flex justify-between text-[11px] font-sans-ui text-slate-400 font-bold">
+            <span>#손끝의손맛</span>
+            <span class="greece-blue animate-pulse">호버 시 키보드 사운드</span>
+          </div>
+        </div>
+
+        <!-- 카드 2: 액티브 우드 스피커 -->
+        <div class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-[#0076FF] transition-all duration-300 flex flex-col justify-between cursor-pointer"
+             onmouseenter="playBlueSwitch()">
+          <div>
+            <!-- 쿠르츠게작트 스타일 스피커 SVG 일러스트 -->
+            <div class="h-44 bg-blue-50/50 rounded-2xl mb-6 flex items-center justify-center border border-slate-100 overflow-hidden relative">
+              <svg class="absolute w-24 h-24 opacity-0 group-hover:opacity-100 transition-opacity" viewBox="0 0 100 100">
+                <circle class="ripple-ring origin-center" style="transform-origin: 50px 50px;" cx="50" cy="50" r="10" stroke="#0076FF" stroke-width="2" fill="none"/>
+              </svg>
+              <svg class="w-28 h-28 z-10" viewBox="0 0 100 100" fill="none">
+                <rect x="30" y="10" width="40" height="80" rx="5" fill="#ffffff" stroke="#0076FF" stroke-width="2.5"/>
+                <circle cx="50" cy="30" r="8" fill="#E2E8F0" stroke="#0076FF" stroke-width="2"/>
+                <circle cx="50" cy="30" r="3" fill="#0076FF"/>
+                
+                <circle cx="50" cy="62" r="14" fill="#E2E8F0" stroke="#0076FF" stroke-width="2"/>
+                <circle class="group-hover:scale-110 transition-transform origin-center" style="transform-origin: 50px 62px;" cx="50" cy="62" r="7" fill="#0076FF"/>
+              </svg>
+            </div>
+            <h3 class="font-title text-xl text-slate-800 mb-2">북셸프 명품 스피커</h3>
+            <p class="text-sm text-slate-500 leading-relaxed font-sans-ui">
+              방 한 구석을 아늑한 울림으로 풍성하게 가꿔줄 스피커. 묵직하고 단단한 사운드 베이스가 하루 일과의 휴식기를 완성합니다.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-dashed border-slate-100 flex justify-between text-[11px] font-sans-ui text-slate-400 font-bold">
+            <span>#아지트사운드</span>
+            <span class="greece-blue">호버 시 우퍼 작동</span>
+          </div>
+        </div>
+
+        <!-- 카드 3: 인체공학 메쉬 체어 -->
+        <div class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-[#0076FF] transition-all duration-300 flex flex-col justify-between cursor-pointer"
+             onmouseenter="playBlueSwitch()">
+          <div>
+            <!-- 쿠르츠게작트 스타일 인체공학 체어 SVG 일러스트 -->
+            <div class="h-44 bg-blue-50/50 rounded-2xl mb-6 flex items-center justify-center border border-slate-100 overflow-hidden">
+              <svg class="w-28 h-28 group-hover:translate-y-0.5 transition-transform" viewBox="0 0 100 100" fill="none">
+                <line x1="50" y1="65" x2="50" y2="85" stroke="#0076FF" stroke-width="2.5"/>
+                <line x1="30" y1="85" x2="70" y2="85" stroke="#0076FF" stroke-width="2.5"/>
+                <g class="chair-tilt transition-transform origin-bottom duration-300" style="transform-origin: 50px 65px;">
+                  <rect x="35" y="15" width="30" height="36" rx="5" fill="#ffffff" stroke="#0076FF" stroke-width="2.5"/>
+                  <rect x="30" y="51" width="40" height="10" rx="3" fill="#0076FF"/>
+                  <line x1="45" y1="20" x2="45" y2="45" stroke="#0076FF" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <line x1="55" y1="20" x2="55" y2="45" stroke="#0076FF" stroke-width="1.5" stroke-dasharray="2 2"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="font-title text-xl text-slate-800 mb-2">요추 지탱 인체공학 의자</h3>
+            <p class="text-sm text-slate-500 leading-relaxed font-sans-ui">
+              책상 앞에 오래 앉아 업무를 마치는 날까지 몸에 피로가 가지 않도록 완벽하고 안락하게 등받이를 받쳐 줍니다.
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-dashed border-slate-100 flex justify-between text-[11px] font-sans-ui text-slate-400 font-bold">
+            <span>#안락함의가치</span>
+            <span class="greece-blue">호버 시 틸팅 반응</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 세 번째 "클릭하세요" 이동 버튼 -->
+      <div class="mt-16 flex flex-col items-center">
+        <button data-next="#wishlist" class="click-me-btn relative w-28 h-28 rounded-full border-2 border-slate-200 flex flex-col items-center justify-center bg-white shadow-lg cursor-pointer select-none smooth-transition">
+          <span class="ripple-ring-1 absolute inset-0 rounded-full border-4 border-blue-200/50 scale-100 opacity-0 pointer-events-none"></span>
+          <span class="ripple-ring-2 absolute inset-0 rounded-full border border-blue-400/40 scale-100 opacity-0 pointer-events-none"></span>
+          
+          <span class="font-sans-ui text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Next</span>
+          <span class="font-title text-sm greece-blue">클릭하세요</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. 설레는 아지트 위시리스트 및 미니 냉장고 인터랙션 -->
+  <section id="wishlist" class="min-h-screen py-24 bg-white border-t border-blue-50/50 flex flex-col justify-center">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        
+        <!-- 왼쪽: 빌드업 퀘스트 로그 리스트 -->
+        <div class="lg:col-span-6 space-y-8">
+          <div class="space-y-4">
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-500 font-sans-ui">Dream Desk Build-Up Log</span>
+            <h2 class="font-title text-3xl sm:text-4xl text-slate-800 leading-tight">아지트 가동율 100%를 향한 여정</h2>
+            <p class="text-sm sm:text-base text-slate-500 leading-relaxed font-sans-ui">
+              지금 당장은 비어 있는 구석들이 많지만, 매일 차곡차곡 위시리스트를 직접 이뤄가며 나만의 성지를 꾸며갈 설렘과 미래를 그려봅니다.
+            </p>
+          </div>
+
+          <!-- 퀘스트 박스 목록 -->
+          <div class="space-y-4 bg-blue-50/20 p-6 rounded-3xl border border-dashed border-blue-200">
+            
+            <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-blue-100">
+              <span class="bg-blue-100 text-[#0076FF] p-1.5 rounded-full shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+              </span>
+              <div>
+                <h4 class="font-bold text-slate-700 text-sm line-through decoration-blue-400/50 font-sans-ui">소리 좋은 기계식 키보드 비치</h4>
+                <p class="text-[10px] text-slate-400 font-bold font-sans-ui">완료! 정갈하고 카랑카랑한 타건감 완성</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-blue-100">
+              <span class="bg-blue-100 text-[#0076FF] p-1.5 rounded-full shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+              </span>
+              <div>
+                <h4 class="font-bold text-slate-700 text-sm line-through decoration-blue-400/50 font-sans-ui">음파 퍼짐이 정다운 사운드 스피커</h4>
+                <p class="text-[10px] text-slate-400 font-bold font-sans-ui">완료! 베이스가 묵직하고 차분한 소리의 완성</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border-2 border-[#0076FF] shadow-sm transform hover:translate-x-1 transition-transform">
+              <span class="w-7 h-7 rounded-full border-2 border-[#0076FF] flex items-center justify-center text-[#0076FF] shrink-0 font-bold text-xs font-sans-ui">
+                3
+              </span>
+              <div class="flex-1">
+                <div class="flex justify-between items-center">
+                  <h4 class="font-bold text-slate-800 text-sm font-sans-ui">미니 캔음료수 쇼케이스 냉장고</h4>
+                  <span class="text-[9px] text-[#0076FF] font-extrabold bg-blue-50 px-2 py-0.5 rounded-md font-sans-ui">MY_DREAM</span>
+                </div>
+                <p class="text-[10px] text-slate-400 font-bold font-sans-ui">게임 한 판 끝내고 들이키는 시원한 한 캔 보관소</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 오른쪽: 미니 냉장고 2D 인터랙티브 그래픽 -->
+        <div class="lg:col-span-6 flex flex-col items-center">
+          
+          <div class="group relative bg-[#ffffff] p-8 rounded-[36px] border border-slate-200 w-full max-w-sm h-[360px] flex flex-col items-center justify-center shadow-lg cursor-pointer transition-all hover:border-[#0076FF]"
+               onmouseenter="playBlueSwitch()">
+            
+            <!-- 코멘트 툴팁 (마우스 호버 시 팝업 전개) -->
+            <div class="absolute -top-6 bg-[#0076FF] text-white text-[11px] px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 transition-all duration-300 shadow-lg pointer-events-none z-30 font-bold flex flex-col items-center font-sans-ui">
+              <span>"시원한 캔 콜라 한 모금의 완벽함!"</span>
+              <div class="w-2.5 h-2.5 bg-[#0076FF] rotate-45 mt-1 -mb-2"></div>
+            </div>
+
+            <!-- 하단 안내 문구 -->
+            <div class="absolute bottom-6 text-[10px] font-bold font-sans-ui text-slate-400 group-hover:text-blue-500 transition-colors">
+              * 마우스를 가져가면 냉장고가 열립니다!
+            </div>
+
+            <!-- 미니 냉장고 벡터 설계 SVG -->
+            <svg class="w-60 h-60 relative" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- 냉장고 내부 본체 프레임 -->
+              <rect x="30" y="15" width="100" height="130" fill="#EBF4FF" stroke="#0076FF" stroke-width="3" rx="8"/>
+              
+              <!-- 내부 적재 물품 그룹 (호버 시 선명히 노출) -->
+              <g class="inner-cans opacity-0 group-hover:opacity-100 transition-all duration-500">
+                <line x1="33" y1="80" x2="127" y2="80" stroke="#0076FF" stroke-width="2"/>
+                <rect x="45" y="44" width="16" height="30" rx="2" fill="#0076FF" stroke="#0076FF" stroke-width="1.5"/>
+                <line x1="45" y1="52" x2="61" y2="52" stroke="#ffffff" stroke-width="1.5"/>
+                <rect x="72" y="44" width="16" height="30" rx="2" fill="#ffffff" stroke="#0076FF" stroke-width="1.5"/>
+                <line x1="72" y1="52" x2="88" y2="52" stroke="#0076FF" stroke-width="1.5"/>
+              </g>
+
+              <!-- 호버 시 튀어오르는 귀여운 캔 콜라 -->
+              <g class="coke-box transform translate-y-8 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-10px] transition-all duration-500 ease-out z-20">
+                <rect x="96" y="32" width="20" height="36" rx="3" fill="#0076FF" stroke="#ffffff" stroke-width="2"/>
+                <line x1="96" y1="46" x2="116" y2="46" stroke="#ffffff" stroke-width="1.5"/>
+                <circle cx="101" cy="40" r="1" fill="#ffffff"/>
+                <circle cx="111" cy="60" r="1" fill="#ffffff"/>
+              </g>
+
+              <!-- 전면 도어 프레임 (3D 회전처럼 호버 시 너비 슬림 효과) -->
+              <g class="fridge-door origin-left transition-transform duration-500 ease-out group-hover:scale-x-[0.15] group-hover:-translate-x-1" style="transform-origin: 30px 80px;">
+                <rect x="30" y="15" width="100" height="130" fill="#ffffff" stroke="#0076FF" stroke-width="3" rx="8"/>
+                <rect x="30" y="75" width="100" height="4" fill="#0076FF" opacity="0.3"/>
+                <rect x="115" y="60" width="6" height="30" rx="2" fill="#0076FF"/>
+              </g>
+            </svg>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 네 번째 "클릭하세요" 이동 버튼 -->
+      <div class="mt-16 flex flex-col items-center">
+        <button data-next="#guestbook" class="click-me-btn relative w-28 h-28 rounded-full border-2 border-slate-200 flex flex-col items-center justify-center bg-white shadow-lg cursor-pointer select-none smooth-transition">
+          <span class="ripple-ring-1 absolute inset-0 rounded-full border-4 border-blue-200/50 scale-100 opacity-0 pointer-events-none"></span>
+          <span class="ripple-ring-2 absolute inset-0 rounded-full border border-blue-400/40 scale-100 opacity-0 pointer-events-none"></span>
+          
+          <span class="font-sans-ui text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Next</span>
+          <span class="font-title text-sm greece-blue">클릭하세요</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. 따뜻한 한 줄 방명록 보드 -->
+  <section id="guestbook" class="min-h-screen py-24 bg-slate-50 border-t border-slate-100 flex flex-col justify-center">
+    <div class="max-w-4xl mx-auto px-6">
+      
+      <div class="text-center space-y-4 mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-blue-500 font-sans-ui">Stay Connected</span>
+        <h2 class="font-title text-3xl sm:text-4xl text-slate-800">아지트 방명록 한 줄 발자국</h2>
+        <p class="text-sm text-slate-500 leading-relaxed max-w-lg mx-auto font-sans-ui">
+          이 아담하고 아늑한 방 안 포트폴리오 투어는 즐거우셨나요? 당신이 그리는 아지트 테마와 격려의 소리를 채워주세요.
+        </p>
+      </div>
+
+      <!-- 방명록 입력 영역 -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md mb-12">
+        <form id="guestForm" onsubmit="submitGuestbook(event)" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="block text-xs font-extrabold text-slate-600 font-sans-ui">작성자 명칭</label>
+              <input type="text" id="gName" required placeholder="이름 또는 닉네임" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0076FF] focus:outline-none text-xs font-sans-ui font-medium">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-extrabold text-slate-600 font-sans-ui">소망하는 나만의 아지트 스타일</label>
+              <select id="gTheme" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0076FF] focus:outline-none text-xs font-sans-ui font-medium bg-white">
+                <option value="💻 캔음료 가득한 미니 PC방">💻 캔음료 가득한 미니 PC방</option>
+                <option value="🌿 피톤치드 플랜테리어">🌿 피톤치드 플랜테리어</option>
+                <option value="🎧 베이스가 묵직한 하이파이 음감방">🎧 베이스가 묵직한 하이파이 음감방</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-xs font-extrabold text-slate-600 font-sans-ui">소중한 격려 한 마디</label>
+            <textarea id="gMsg" rows="3" required placeholder="함께 빌드업해갈 아지트 여정에 따뜻한 메시지를 달아주세요!" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#0076FF] focus:outline-none text-xs font-sans-ui font-medium"></textarea>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button type="submit" class="bg-greece-blue text-white px-5 py-3 rounded-xl hover:bg-blue-600 transition-colors text-xs font-bold font-sans-ui flex items-center gap-2 shadow-md">
+              <span>아지트 방명록 등록하기</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 방명록 타임라인 리스트 -->
+      <div class="space-y-4">
+        <h3 class="font-title text-xl text-slate-800 flex items-center gap-2 mb-6">
+          <span>최근 남겨진 발자국 소리</span>
+          <span id="gCount" class="text-xs bg-blue-100 text-[#0076FF] px-2.5 py-1 rounded-full font-bold font-sans-ui">0</span>
+        </h3>
+        
+        <div id="gList" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+          <div id="gEmpty" class="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs font-bold font-sans-ui">
+            아직 방명록 글귀가 없습니다. 첫 마디를 채워 주시는 영광을 누려보세요!
+          </div>
+        </div>
+      </div>
+
+      <!-- 마지막 "클릭하세요" 버튼 (처음으로 돌아가기) -->
+      <div class="mt-20 flex flex-col items-center">
+        <button data-next="#hero" class="click-me-btn relative w-28 h-28 rounded-full border-2 border-slate-200 flex flex-col items-center justify-center bg-white shadow-lg cursor-pointer select-none smooth-transition">
+          <span class="ripple-ring-1 absolute inset-0 rounded-full border-4 border-blue-200/50 scale-100 opacity-0 pointer-events-none"></span>
+          <span class="ripple-ring-2 absolute inset-0 rounded-full border border-blue-400/40 scale-100 opacity-0 pointer-events-none"></span>
+          
+          <span class="font-sans-ui text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Top</span>
+          <span class="font-title text-sm greece-blue">클릭하세요</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 푸터 구역 -->
+  <footer class="bg-slate-900 text-slate-400 py-16 font-sans-ui">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="space-y-2 text-center md:text-left">
+        <h4 class="font-title text-lg text-white tracking-wide">나의 드림 아지트</h4>
+        <p class="text-xs text-slate-500 font-medium">
+          “손끝에서 깨어나는 경쾌한 청축음, 방 안 가득 울려 퍼지는 중저음 Lofi 소리”
+        </p>
+        <p class="text-[10px] text-slate-600 font-bold">
+          © 2026 My Dream Deskterior Portfolio. All rights reserved.
+        </p>
+      </div>
+      
+      <!-- SNS 이메일 연동 채널 -->
+      <div class="flex items-center gap-4">
+        <a href="mailto:hello@mydreamdesk.com" class="bg-slate-800 hover:bg-[#0076FF] text-white p-3 rounded-full transition-colors border border-slate-700/50" title="이메일">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        </a>
+        <a href="https://instagram.com" target="_blank" class="bg-slate-800 hover:bg-[#0076FF] text-white p-3 rounded-full transition-colors border border-slate-700/50" title="인스타그램">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 2D 키캡 자판 파티클 물리 렌더러 및 근접 센싱 시스템 스크립트 -->
+  <script>
+    const canvas = document.getElementById('globalParticleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    // 가로 및 세로 뷰포트 크기 변경 완벽 대응
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // 키캡 자판 블록 파티클 객체 정의 (실제 키캡 3D 형상 모델링)
+    const keyLabels = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Shift', 'Enter', 'Alt', 'Ctrl', 'Esc', 'Space'];
+    
+    class KeycapParticle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 4;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed - 3; // 초기 분사 궤도를 상향 설계
+        this.opacity = 1;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.12;
+        this.label = keyLabels[Math.floor(Math.random() * keyLabels.length)];
+        this.width = this.label.length > 3 ? 38 : 22;
+        this.height = 20;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.18; // 가벼운 중력 물리 가속
+        this.rotation += this.rotationSpeed;
+        this.opacity -= 0.012; // 페이드 아웃 타임라인 설정
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.globalAlpha = this.opacity;
+
+        // 1. 키캡의 입체감 있는 3D 베이스 그림자
+        ctx.fillStyle = 'rgba(0, 80, 200, 0.35)';
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2 + 2, -this.height/2 + 3, this.width, this.height, 4);
+        ctx.fill();
+
+        // 2. 키캡 메인 바디
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#0076FF';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // 3. 자판 상단 음각 이펙트 느낌 연출용 이중 라인
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2 + 2, -this.height/2 + 2, this.width - 4, this.height - 6, 2);
+        ctx.stroke();
+
+        // 4. 자판 텍스트 정보 마킹
+        ctx.fillStyle = '#0076FF';
+        ctx.font = `bold 8px 'Pretendard', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.label, 0, 1);
+
+        ctx.restore();
+      }
+    }
+
+    // 다중 "클릭하세요" 버튼 마우스 호버 센싱 및 동역학 물결 시스템 구축
+    const clickButtons = document.querySelectorAll('.click-me-btn');
+
+    document.addEventListener('mousemove', (e) => {
+      clickButtons.forEach(btn => {
+        const rect = btn.getBoundingClientRect();
+        
+        // 뷰포트 스크롤과 보정값을 연산한 중심좌표 파악
+        const btnX = rect.left + rect.width / 2;
+        const btnY = rect.top + rect.height / 2;
+
+        const dist = Math.hypot(e.clientX - btnX, e.clientY - btnY);
+        const r1 = btn.querySelector('.ripple-ring-1');
+        const r2 = btn.querySelector('.ripple-ring-2');
+
+        if (dist < 200) {
+          // 마우스 접근 감도(Strength) 연산
+          const strength = (200 - dist) / 200;
+          r1.style.opacity = strength * 0.9;
+          r2.style.opacity = strength * 0.55;
+          r1.style.transform = `scale(${1 + strength * 0.35})`;
+          r2.style.transform = `scale(${1 + strength * 0.7})`;
+          btn.style.transform = `scale(${1 + strength * 0.08})`;
+          btn.style.borderColor = `rgba(0, 118, 255, ${0.3 + strength * 0.7})`;
+        } else {
+          r1.style.opacity = '0';
+          r2.style.opacity = '0';
+          btn.style.transform = 'scale(1)';
+          btn.style.borderColor = 'rgba(226, 232, 240, 1)';
+        }
+      });
+    });
+
+    // 모든 이동 트리거 버튼에 청축 사운드 피드백 및 다음 목적지 페이지 스크롤 전환 바인딩
+    clickButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playBlueSwitch();
+
+        // 1. 자판 블록 파티클 고밀도 생성
+        const clickX = e.clientX;
+        const clickY = e.clientY;
+        for (let i = 0; i < 20; i++) {
+          particles.push(new KeycapParticle(clickX, clickY));
+        }
+
+        // 2. 부드러운 스무스 스크롤 네비게이션 트리거
+        const targetId = btn.getAttribute('data-next');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          setTimeout(() => {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+          }, 120);
+        }
+
+        showToast("다음 드림 아지트 아일랜드로 발자국을 옮깁니다.");
+      });
+    });
+
+    // 파티클 상시 물리 갱신 루프 가동
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.opacity > 0);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    requestAnimationFrame(animateParticles);
+
+    // 전역 기계식 클릭 효과 적용
+    document.addEventListener('click', (e) => {
+      initAudio();
+      if (e.target.closest('a') || e.target.closest('select') || e.target.closest('input') || e.target.closest('textarea')) {
+        playBlueSwitch();
+      }
+    });
+  </script>
+
+  <!-- 데이터 보관 및 방명록 빌더 로직 -->
+  <script>
+    let savedMsg = [];
+
+    function syncBoard() {
+      const storageData = localStorage.getItem('dream_desk_v5_book');
+      if (storageData) {
+        savedMsg = JSON.parse(storageData);
+      } else {
+        savedMsg = [
+          {
+            name: "데스크 셋업가",
+            theme: "💻 캔음료 가득한 미니 PC방",
+            message: "와! 단발 헤드폰 일러스트부터 물결 센싱 효과까지 너무 참신하네요. 클릭할 때 사방으로 키 자판 블록이 튕겨나가고 찰칵대는 소리가 나니 쾌감이 느껴집니다. 멋진 꿈의 빌드업 응원해요!",
+            date: "2026.07.13"
+          },
+          {
+            name: "사운드 리틀",
+            theme: "🎧 베이스가 묵직한 하이파이 음감방",
+            message: "미니 냉장고 문이 마우스 댈 때 스르륵 열리며 시원한 한 캔이 솟구쳐 나오는 연출이 완전 예술이에요. 전체적으로 그리스 블루 한 가지 톤으로 깔끔하게 정리되어 최고입니다.",
+            date: "2026.07.13"
+          }
+        ];
+        saveBoard();
+      }
+      renderBoard();
+    }
+
+    function saveBoard() {
+      localStorage.setItem('dream_desk_v5_book', JSON.stringify(savedMsg));
+    }
+
+    function renderBoard() {
+      const listDiv = document.getElementById('gList');
+      const emptyDiv = document.getElementById('gEmpty');
+      const badge = document.getElementById('gCount');
+
+      listDiv.innerHTML = "";
+      badge.innerText = savedMsg.length;
+
+      if (savedMsg.length === 0) {
+        listDiv.appendChild(emptyDiv);
+        emptyDiv.classList.remove('hidden');
+        return;
+      }
+
+      savedMsg.forEach((msg, index) => {
+        const itemCard = document.createElement('div');
+        itemCard.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-[#0076FF] transition-all";
+        itemCard.innerHTML = `
+          <div class="flex items-center justify-between gap-3 mb-2 font-sans-ui">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-800 text-xs">${msg.name}</span>
+              <span class="text-[9px] bg-blue-50 text-[#0076FF] px-2.5 py-1 rounded-md font-bold">${msg.theme}</span>
+            </div>
+            <button onclick="removeMessage(${index})" class="text-slate-300 hover:text-red-500 transition-colors p-1" title="방명록 삭제">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+          <p class="text-slate-600 text-xs font-semibold leading-relaxed whitespace-pre-line">${msg.message}</p>
+          <span class="text-[9px] text-slate-400 font-bold font-sans-ui self-end mt-2">${msg.date}</span>
+        `;
+        listDiv.appendChild(itemCard);
+      });
+    }
+
+    function submitGuestbook(e) {
+      e.preventDefault();
+      const nameInp = document.getElementById('gName');
+      const themeSel = document.getElementById('gTheme');
+      const msgTxt = document.getElementById('gMsg');
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+
+      const data = {
+        name: nameInp.value.trim(),
+        theme: themeSel.value,
+        message: msgTxt.value.trim(),
+        date: dateStr
+      };
+
+      savedMsg.unshift(data);
+      saveBoard();
+      renderBoard();
+
+      nameInp.value = "";
+      msgTxt.value = "";
+
+      showToast("소중한 발자국 한 줄이 방명록 보드에 기록되었습니다!");
+    }
+
+    function removeMessage(idx) {
+      savedMsg.splice(idx, 1);
+      saveBoard();
+      renderBoard();
+      showToast("해당 메시지가 영구적으로 삭제되었습니다.");
+    }
+
+    window.onload = function() {
+      syncBoard();
+    };
+  </script>
+
+</body>
+</html>
