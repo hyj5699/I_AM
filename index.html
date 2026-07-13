@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="ko" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나만의 드림 아지트</title>
+  
+  <!-- Tailwind CSS 로드 및 커스텀 설정 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            }
+          },
+          transitionProperty: {
+            'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    @font-face {
+      font-family: 'OkDandan';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/OkDanDan-Bold.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body {
+      font-family: 'Gowun Batang', serif;
+      overflow-x: hidden;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    
+    .font-sans-ui { font-family: 'Pretendard', sans-serif; }
+    .font-title { font-family: 'OkDandan', sans-serif; letter-spacing: -0.01em; }
+
+    html { scroll-behavior: smooth; }
+
+    .smooth-transition {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* 이퀄라이저 애니메이션 */
+    @keyframes eqBar {
+      0%, 100% { height: 4px; }
+      50% { height: 18px; }
+    }
+    .eq-bar { animation: eqBar 0.8s infinite ease-in-out; }
+
+    /* 커스텀 스크롤바 */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #0ea5e9; }
+    .svg-element { transition: fill 0.5s ease, stroke 0.5s ease; }
+
+    /* 상시 물결 애니메이션 */
+    @keyframes rippleConstant {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .ripple-continuous-1 { animation: rippleConstant 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+    .ripple-continuous-2 { animation: rippleConstant 2s cubic-bezier(0.16, 1, 0.3, 1) infinite 1s; }
+
+    /* 키보드 타이핑 애니메이션 (A-P-P-L-E) */
+    @keyframes typeKey {
+      0%, 100% { transform: translateY(0); fill: currentColor; }
+      10%, 40% { transform: translateY(3px); fill: #0ea5e9; }
+    }
+    .group:hover .key-a { animation: typeKey 2s infinite 0.0s; }
+    .group:hover .key-p1 { animation: typeKey 2s infinite 0.3s; }
+    .group:hover .key-p2 { animation: typeKey 2s infinite 0.6s; }
+    .group:hover .key-l { animation: typeKey 2s infinite 0.9s; }
+    .group:hover .key-e { animation: typeKey 2s infinite 1.2s; }
+
+    /* 우퍼 진동 애니메이션 */
+    @keyframes wooferVibrate {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .woofer-anim { transform-origin: center; }
+    .group:hover .woofer-anim { animation: wooferVibrate 0.15s ease-in-out infinite; }
+
+    /* 타이핑 커서 애니메이션 */
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    .cursor-blink {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background-color: currentColor;
+      margin-left: 2px;
+      animation: blink 0.8s infinite;
+      vertical-align: middle;
+    }
+
+    /* 3D 냉장고 스타일 고도화 */
+    .fridge-perspective {
+      perspective: 1200px;
+    }
+    .fridge-door {
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.8s ease;
+    }
+    .fridge-door.open {
+      transform: rotateY(-115deg);
+      box-shadow: 15px 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .dark .fridge-door.open {
+      box-shadow: 15px 10px 40px rgba(0, 0, 0, 0.7);
+    }
+    
+    /* 탄산 및 냉풍 연출을 위한 오버레이 레이어 */
+    .mist-canvas {
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+  </style>
+</head>
+<body class="bg-ocean-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 selection:bg-ocean-500 selection:text-white">
+
+  <script>
+    function initTheme() {
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    initTheme();
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        showToast("밝은 여름 바다 모드로 전환되었습니다.");
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        showToast("깊고 고요한 밤바다 모드로 전환되었습니다.");
+      }
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    let audioCtx = null, lofiInterval = null, isPlayingLofi = false;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // 오디오 사운드 풀 합성기 (기계식 키보드 & 냉장고 시뮬레이터 사운드 포함)
+    function playBlueSwitch() {
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        
+        const clickOsc = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        clickOsc.type = 'sine';
+        clickOsc.frequency.setValueAtTime(2600, now);
+        clickOsc.frequency.exponentialRampToValueAtTime(1500, now + 0.01);
+        clickGain.gain.setValueAtTime(0.08, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+
+        const thudOsc = audioCtx.createOscillator();
+        const thudGain = audioCtx.createGain();
+        thudOsc.type = 'triangle';
+        thudOsc.frequency.setValueAtTime(150, now);
+        thudOsc.frequency.exponentialRampToValueAtTime(55, now + 0.05);
+        thudGain.gain.setValueAtTime(0.3, now);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass'; filter.frequency.value = 1700;
+
+        clickOsc.connect(clickGain); clickGain.connect(filter);
+        thudOsc.connect(thudGain); thudGain.connect(filter);
+        filter.connect(audioCtx.destination);
+
+        clickOsc.start(now); clickOsc.stop(now + 0.015);
+        thudOsc.start(now); thudOsc.stop(now + 0.06);
+      } catch (e) {}
+    }
+
+    // 냉장고용 실감 사운드 합성기
+    function playFridgeSound(type) {
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        if (type === 'open') {
+          // 냉장고 문 열 때 가스식 감압 및 흡착식 '쉬익- 털컥' 소리
+          const noise = audioCtx.createBufferSource();
+          const bufferSize = audioCtx.sampleRate * 0.4;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          noise.buffer = buffer;
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(800, now);
+          filter.frequency.exponentialRampToValueAtTime(300, now + 0.3);
+          
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.07, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(now);
+
+          // 묵직한 덜컹 느낌 추가
+          const thud = audioCtx.createOscillator();
+          const thudGain = audioCtx.createGain();
+          thud.type = 'sine';
+          thud.frequency.setValueAtTime(80, now);
+          thud.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+          thudGain.gain.setValueAtTime(0.4, now);
+          thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          thud.connect(thudGain);
+          thudGain.connect(audioCtx.destination);
+          thud.start(now);
+          thud.stop(now + 0.15);
+
+        } else if (type === 'clink') {
+          // 캔 부딪히는 맑은 금속성 소리
+          const osc1 = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(1500, now);
+          osc1.frequency.setValueAtTime(1200, now + 0.05);
+          
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(3200, now);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 0.22);
+          osc2.stop(now + 0.22);
+
+        } else if (type === 'pop') {
+          // 탄산 개봉음! "치익- 쏴아아"
+          const bufferSize = audioCtx.sampleRate * 1.5;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.setValueAtTime(3000, now);
+          filter.frequency.exponentialRampToValueAtTime(1500, now + 0.8);
+
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.03, now + 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(now);
+
+          // 최초 캔 철제 따개 오프닝 음 (딸깍!)
+          const popOsc = audioCtx.createOscillator();
+          const popGain = audioCtx.createGain();
+          popOsc.type = 'triangle';
+          popOsc.frequency.setValueAtTime(250, now);
+          popOsc.frequency.exponentialRampToValueAtTime(800, now + 0.03);
+          popOsc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+
+          popGain.gain.setValueAtTime(0.6, now);
+          popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+          popOsc.connect(popGain);
+          popGain.connect(audioCtx.destination);
+          popOsc.start(now);
+          popOsc.stop(now + 0.12);
+        }
+      } catch (e) {}
+    }
+
+    function toggleLofiMusic() {
+      initAudio();
+      const btn = document.getElementById('musicBtn');
+      const eqActive = document.getElementById('eqAnimation'), eqStatic = document.getElementById('eqStatic');
+
+      if (isPlayingLofi) {
+        isPlayingLofi = false;
+        if (lofiInterval) { clearInterval(lofiInterval); lofiInterval = null; }
+        btn.classList.remove('bg-ocean-600', 'text-white', 'dark:bg-ocean-500');
+        btn.classList.add('bg-white', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300');
+        eqActive.classList.add('hidden'); eqStatic.classList.remove('hidden');
+        showToast("배경음악을 일시정지합니다.");
+      } else {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        isPlayingLofi = true;
+        btn.classList.add('bg-ocean-600', 'text-white', 'dark:bg-ocean-500');
+        btn.classList.remove('bg-white', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300');
+        eqActive.classList.remove('hidden'); eqStatic.classList.add('hidden');
+        showToast("Lofi 음악이 재생됩니다.");
+        playLofiLoop();
+      }
+    }
+
+    function playLofiLoop() {
+      if (!isPlayingLofi) return;
+      const playPianoChord = () => {
+        if (!isPlayingLofi) return;
+        const now = audioCtx.currentTime;
+        const chords = [[130.81, 164.81, 196.00, 246.94], [110.00, 130.81, 164.81, 220.00], [146.83, 174.61, 220.00, 261.63], [98.00, 146.83, 196.00, 246.94]];
+        const notes = chords[Math.floor(Math.random() * chords.length)];
+
+        notes.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine'; osc.frequency.setValueAtTime(freq, now + i * 0.15);
+          
+          const vibrato = audioCtx.createOscillator(); const vibratoGain = audioCtx.createGain();
+          vibrato.frequency.setValueAtTime(5.0, now); vibratoGain.gain.setValueAtTime(0.8, now);
+          vibrato.connect(vibratoGain); vibratoGain.connect(osc.frequency);
+
+          gain.gain.setValueAtTime(0, now + i * 0.15);
+          gain.gain.linearRampToValueAtTime(0.04, now + i * 0.15 + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.15 + 3.0);
+
+          const lp = audioCtx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(700, now);
+          osc.connect(lp); lp.connect(gain); gain.connect(audioCtx.destination);
+          vibrato.start(now); osc.start(now + i * 0.15);
+          osc.stop(now + 3.2); vibrato.stop(now + 3.2);
+        });
+      };
+      playPianoChord();
+      lofiInterval = setInterval(() => { if (isPlayingLofi) playPianoChord(); }, 4500);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = "bg-slate-800 dark:bg-ocean-800 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto border border-white/10 font-sans-ui";
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-ocean-500 animate-ping"></span><span>${message}</span>`;
+      container.appendChild(toast);
+      
+      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+      setTimeout(() => { toast.classList.add('translate-y-[-5px]', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 2500);
+    }
+  </script>
+
+  <!-- 토스트 알림 -->
+  <div id="toastContainer" class="fixed top-24 right-4 sm:right-6 z-[999] flex flex-col gap-2 pointer-events-none max-w-[280px] sm:max-w-xs w-full"></div>
+
+  <!-- 플로팅 컨트롤 -->
+  <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-[99] flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-3 font-sans-ui">
+    <button onclick="toggleTheme(); playBlueSwitch();" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-1 transition-all text-slate-600 dark:text-slate-300 group">
+      <svg class="w-5 h-5 hidden dark:block group-hover:text-ocean-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      <svg class="w-5 h-5 block dark:hidden group-hover:text-ocean-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    </button>
+    
+    <button id="musicBtn" onclick="toggleLofiMusic()" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-1 transition-all text-slate-600 dark:text-slate-300">
+      <svg id="eqStatic" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg>
+      <div id="eqAnimation" class="flex items-end gap-[2px] h-[16px] hidden">
+        <span class="eq-bar w-[2px] bg-current" style="animation-delay: 0.1s;"></span>
+        <span class="eq-bar w-[2px] bg-current" style="animation-delay: 0.3s;"></span>
+        <span class="eq-bar w-[2px] bg-current" style="animation-delay: 0.5s;"></span>
+        <span class="eq-bar w-[2px] bg-current" style="animation-delay: 0.2s;"></span>
+      </div>
+    </button>
+  </div>
+
+  <!-- GNB -->
+  <nav class="sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-ocean-100 dark:border-slate-800 z-50 transition-colors duration-500">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <a href="#" class="font-title text-xl sm:text-2xl tracking-wide text-ocean-600 dark:text-ocean-500" onclick="playBlueSwitch()">
+        나의 드림 아지트
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500 dark:text-slate-400 font-sans-ui">
+        <a href="#about" class="hover:text-ocean-600 dark:hover:text-ocean-400 transition-colors" onclick="playBlueSwitch()">아지트 소개</a>
+        <a href="#current" class="hover:text-ocean-600 dark:hover:text-ocean-400 transition-colors" onclick="playBlueSwitch()">나의 도구들</a>
+        <a href="#wishlist" class="hover:text-ocean-600 dark:hover:text-ocean-400 transition-colors" onclick="playBlueSwitch()">위시리스트</a>
+        <a href="#guestbook" class="hover:text-ocean-600 dark:hover:text-ocean-400 transition-colors" onclick="playBlueSwitch()">방명록</a>
+      </div>
+      <button class="md:hidden p-2 text-slate-600 dark:text-slate-300" onclick="toggleMobileMenu(); playBlueSwitch();">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden absolute w-full bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 shadow-lg">
+      <div class="flex flex-col px-6 py-4 space-y-4 font-sans-ui text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <a href="#about" onclick="toggleMobileMenu(); playBlueSwitch();" class="block hover:text-ocean-500">아지트 소개</a>
+        <a href="#current" onclick="toggleMobileMenu(); playBlueSwitch();" class="block hover:text-ocean-500">나의 도구들</a>
+        <a href="#wishlist" onclick="toggleMobileMenu(); playBlueSwitch();" class="block hover:text-ocean-500">위시리스트</a>
+        <a href="#guestbook" onclick="toggleMobileMenu(); playBlueSwitch();" class="block hover:text-ocean-500">방명록</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 1. 메인 히어로 섹션 -->
+  <header id="hero" class="relative min-h-[90vh] flex flex-col items-center justify-center bg-gradient-to-b from-ocean-100/50 via-white to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 px-4 py-16 overflow-hidden transition-colors duration-500">
+    <div class="max-w-4xl w-full text-center z-10 flex flex-col items-center">
+      
+      <!-- 해변 물결 인터랙티브 SVG -->
+      <div class="w-full max-w-[280px] sm:max-w-[340px] mb-8 sm:mb-12 relative group cursor-pointer overflow-hidden rounded-3xl shadow-xl dark:shadow-2xl border-[6px] border-white dark:border-slate-800 smooth-transition">
+        <svg class="w-full h-auto bg-[#e5c598] dark:bg-[#78350f]" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 모래 배경 질감 -->
+          <circle cx="50" cy="50" r="2" fill="#d4a373" dark:fill="#451a03" opacity="0.4"/>
+          <circle cx="250" cy="120" r="3" fill="#d4a373" dark:fill="#451a03" opacity="0.3"/>
+          <circle cx="150" cy="280" r="2.5" fill="#d4a373" dark:fill="#451a03" opacity="0.5"/>
+          <circle cx="80" cy="200" r="1.5" fill="#d4a373" dark:fill="#451a03" opacity="0.4"/>
+          
+          <!-- 불가사리 데코 -->
+          <path d="M 280 260 L 285 275 L 300 275 L 288 285 L 292 300 L 280 290 L 268 300 L 272 285 L 260 275 L 275 275 Z" fill="#fca5a5" opacity="0.8"/>
+
+          <!-- 밀물/썰물 웨이브 그룹 (Hover시 좌측으로 밀려옴) -->
+          <g class="translate-x-[340px] group-hover:translate-x-0 transition-transform duration-[1200ms] ease-out">
+            <!-- 파도 그라데이션 -->
+            <path d="M 40 -20 Q -40 160 30 340 L 340 340 L 340 -20 Z" fill="#38bdf8" opacity="0.5"/>
+            <path d="M 80 -20 Q 0 160 60 340 L 340 340 L 340 -20 Z" fill="#0ea5e9" opacity="0.7"/>
+            <path d="M 120 -20 Q 50 160 90 340 L 340 340 L 340 -20 Z" fill="#0284c7" opacity="0.9"/>
+            
+            <!-- 물결 위 반짝이는 윤슬 (Sparkles) -->
+            <circle cx="100" cy="80" r="2.5" fill="#ffffff" class="animate-pulse"/>
+            <circle cx="180" cy="150" r="3.5" fill="#ffffff" class="animate-pulse" style="animation-delay: 0.3s;"/>
+            <circle cx="130" cy="260" r="2" fill="#ffffff" class="animate-pulse" style="animation-delay: 0.6s;"/>
+            <circle cx="240" cy="70" r="3" fill="#ffffff" class="animate-pulse" style="animation-delay: 0.2s;"/>
+            <circle cx="210" cy="280" r="4" fill="#ffffff" class="animate-pulse" style="animation-delay: 0.5s;"/>
+            
+            <!-- 물거품 디테일 -->
+            <path d="M 50 20 Q 20 80 40 150 Q 20 230 45 300" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.6"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="mb-4 text-center">
+        <h1 class="font-title text-3xl sm:text-5xl md:text-6xl tracking-tight leading-tight text-slate-800 dark:text-white mb-2">
+          나만의 공간 꾸미기
+        </h1>
+        <span class="inline-block text-xs sm:text-sm md:text-base font-semibold tracking-wider text-ocean-600 dark:text-ocean-400 bg-ocean-100/50 dark:bg-ocean-950/40 px-3 py-1 rounded-full font-sans-ui transition-colors">
+          데스크테리어
+        </span>
+      </div>
+      
+      <p class="font-sans-ui text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed mb-10 sm:mb-12 px-4">
+        손끝에서 착 감기는 기계식 청축 소리와, 방 안을 가득 메우는 청량한 음악. 
+        이곳에서 가꾸어 나갈 성실한 몰입과 여름 바다 같은 로망의 조각들.
+      </p>
+
+      <div class="relative flex flex-col items-center justify-center">
+        <button data-next="#about" class="click-me-btn relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-transparent cursor-pointer select-none group">
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-400 dark:border-ocean-300 ripple-continuous-1 pointer-events-none"></span>
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-500 dark:border-ocean-400 ripple-continuous-2 pointer-events-none"></span>
+          <span class="font-sans-ui text-xs sm:text-sm font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform">Next</span>
+        </button>
+        <span class="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-6 font-sans-ui text-center px-4">
+          * 마우스를 가져가거나 터치하여 다음 페이지로 이동해보세요.
+        </span>
+      </div>
+
+    </div>
+  </header>
+
+  <canvas id="globalParticleCanvas" class="fixed inset-0 pointer-events-none w-full h-full z-[100]"></canvas>
+
+  <!-- 2. 아지트 소개 -->
+  <section id="about" class="min-h-screen py-16 sm:py-24 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex flex-col justify-center transition-colors duration-500">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+      <div class="space-y-10 sm:space-y-12 text-center">
+        <div class="space-y-3 sm:space-y-4">
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 font-sans-ui">나의 공간, 나의 아지트</span>
+          <h2 class="font-title text-2xl sm:text-3xl md:text-4xl text-slate-800 dark:text-white leading-tight">
+            하루가 머무는 작은 비밀기지
+          </h2>
+        </div>
+        
+        <!-- 컴퓨터 모니터 인터페이스 타이핑 애니메이션 -->
+        <div class="relative mx-auto w-full max-w-2xl bg-slate-100 dark:bg-slate-800 p-4 rounded-3xl shadow-2xl border-4 border-slate-200/80 dark:border-slate-700 smooth-transition">
+          <div class="relative w-full h-[320px] sm:h-[360px] bg-sky-50/60 dark:bg-slate-950 rounded-2xl p-6 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner flex flex-col justify-start text-left">
+            
+            <div class="flex items-center justify-between mb-4 border-b border-sky-100 dark:border-slate-800 pb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-sans-ui ml-2 font-semibold">workspace_inspiration.txt</span>
+              </div>
+              <span class="text-[9px] bg-ocean-100 dark:bg-ocean-950/50 text-ocean-600 dark:text-ocean-400 px-2 py-0.5 rounded font-sans-ui font-semibold animate-pulse">Online</span>
+            </div>
+
+            <div class="flex-1 font-sans-ui text-slate-700 dark:text-slate-200 text-xs sm:text-sm md:text-base leading-relaxed space-y-3 sm:space-y-4 overflow-y-auto pb-12" id="monitor-screen">
+              <p id="typing-p1" class="min-h-[1.5em] text-slate-600 dark:text-slate-300 font-semibold"></p>
+              <div id="typing-quote" class="border-l-4 border-ocean-500 pl-4 py-2 font-bold bg-ocean-50/50 dark:bg-ocean-900/30 text-slate-800 dark:text-slate-200 rounded-r-xl hidden">
+                <p id="typing-p2" class="m-0 min-h-[1.5em]"></p>
+              </div>
+              <p id="typing-p3" class="min-h-[1.5em] text-slate-600 dark:text-slate-300 font-semibold"></p>
+            </div>
+
+            <div class="absolute bottom-4 right-4 flex items-center gap-1.5 bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm px-2 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md z-20">
+              <span class="text-[9px] font-bold font-sans-ui text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1 mr-1">Speed</span>
+              <button onclick="changeSpeed(80, this); playBlueSwitch();" id="speed-btn-slow" class="text-[10px] px-2 py-1 rounded-lg font-sans-ui font-bold hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">느림</button>
+              <button onclick="changeSpeed(40, this); playBlueSwitch();" id="speed-btn-normal" class="text-[10px] px-2 py-1 rounded-lg font-sans-ui font-bold bg-ocean-500 text-white transition-colors">보통</button>
+              <button onclick="changeSpeed(15, this); playBlueSwitch();" id="speed-btn-fast" class="text-[10px] px-2 py-1 rounded-lg font-sans-ui font-bold hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">빠름</button>
+            </div>
+
+          </div>
+          <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 w-20 h-8 bg-slate-200 dark:bg-slate-700 -z-10 rounded-b-lg shadow-md"></div>
+          <div class="absolute -bottom-9 left-1/2 -translate-x-1/2 w-36 h-2 bg-slate-300 dark:bg-slate-600 -z-10 rounded-full shadow-lg"></div>
+        </div>
+
+        <div class="pt-6 sm:pt-8 flex flex-col items-center">
+          <button data-next="#current" class="click-me-btn relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-transparent cursor-pointer select-none group">
+            <span class="absolute inset-0 rounded-full border-2 border-ocean-400 dark:border-ocean-300 ripple-continuous-1 pointer-events-none"></span>
+            <span class="absolute inset-0 rounded-full border-2 border-ocean-500 dark:border-ocean-400 ripple-continuous-2 pointer-events-none"></span>
+            <span class="font-sans-ui text-xs sm:text-sm font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform">Next</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 애장품 쇼케이스 -->
+  <section id="current" class="min-h-screen py-16 sm:py-24 bg-ocean-50/50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex flex-col justify-center transition-colors duration-500">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3 sm:space-y-4">
+        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 font-sans-ui">My Favorite Instruments</span>
+        <h2 class="font-title text-2xl sm:text-3xl md:text-4xl text-slate-800 dark:text-white">책상 위를 지켜줄 것 같은 위시리스트</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-sans-ui font-medium">
+          카드를 터치하거나 마우스를 올리면 반응합니다.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+        
+        <!-- 1. 키보드 (APPLE 타이핑 반응) -->
+        <div class="group bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-ocean-500 dark:hover:border-ocean-400 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-sm hover:shadow-md">
+          <div>
+            <div class="h-40 sm:h-44 bg-slate-50 dark:bg-slate-900 rounded-xl mb-5 flex items-center justify-center border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
+              <svg class="w-32 h-32 sm:w-36 sm:h-36 group-hover:scale-[1.03] transition-transform" viewBox="0 0 120 120" fill="none">
+                <rect x="10" y="30" width="100" height="60" rx="4" class="fill-white dark:fill-slate-800 stroke-slate-300 dark:stroke-slate-600 svg-element" stroke-width="2.5"/>
+                <g class="fill-slate-100 dark:fill-slate-700 stroke-slate-300 dark:stroke-slate-600" stroke-width="1.5" rx="1.5">
+                  <rect x="15" y="35" width="8" height="8" rx="2"/>
+                  <rect x="25" y="35" width="8" height="8" rx="2"/>
+                  <rect class="key-e svg-element" x="35" y="35" width="8" height="8" rx="2"/>
+                  <rect x="45" y="35" width="8" height="8" rx="2"/>
+                  <rect class="key-p1 svg-element" x="85" y="35" width="8" height="8" rx="2"/>
+                  <rect class="key-p2 svg-element" x="95" y="35" width="8" height="8" rx="2"/>
+                  <rect class="key-a svg-element" x="18" y="47" width="8" height="8" rx="2"/>
+                  <rect x="28" y="47" width="8" height="8" rx="2"/>
+                  <rect x="38" y="47" width="8" height="8" rx="2"/>
+                  <rect x="48" y="47" width="8" height="8" rx="2"/>
+                  <rect x="58" y="47" width="8" height="8" rx="2"/>
+                  <rect class="key-l svg-element" x="88" y="47" width="8" height="8" rx="2"/>
+                  <rect x="15" y="59" width="12" height="8" rx="2"/>
+                  <rect x="30" y="59" width="50" height="8" rx="2"/>
+                  <rect x="83" y="59" width="12" height="8" rx="2"/>
+                  <rect x="75" y="75" width="8" height="8" rx="2"/>
+                  <rect x="85" y="75" width="8" height="8" rx="2"/>
+                  <rect x="95" y="75" width="8" height="8" rx="2"/>
+                  <rect x="85" y="65" width="8" height="8" rx="2"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="font-title text-lg sm:text-xl text-slate-800 dark:text-white mb-2">기계식 키보드</h3>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-sans-ui">
+              타자 한 글자마다 경쾌하게 솟아오르는 손맛은 장시간 타건에도 작업의 활력이 됩니다.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-dashed border-slate-100 dark:border-slate-700 flex justify-between text-[10px] sm:text-[11px] font-sans-ui text-slate-400 dark:text-slate-500 font-bold">
+            <span>#손끝의손맛</span>
+            <span class="text-ocean-600 dark:text-ocean-400 animate-pulse">Hover: 'APPLE' 타이핑</span>
+          </div>
+        </div>
+
+        <!-- 2. 스피커 (우퍼 진동 반응) -->
+        <div class="group bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-ocean-500 dark:hover:border-ocean-400 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-sm hover:shadow-md">
+          <div>
+            <div class="h-40 sm:h-44 bg-slate-50 dark:bg-slate-900 rounded-xl mb-5 flex items-center justify-center border border-slate-100 dark:border-slate-800 overflow-hidden relative transition-colors">
+              <svg class="w-24 h-24 sm:w-28 sm:h-28 z-10" viewBox="0 0 100 100" fill="none">
+                <rect x="25" y="10" width="50" height="80" rx="4" class="fill-white dark:fill-slate-800 stroke-slate-300 dark:stroke-slate-600 svg-element" stroke-width="2.5"/>
+                <circle cx="50" cy="30" r="10" class="fill-slate-100 dark:fill-slate-700 stroke-slate-300 dark:stroke-slate-600 svg-element" stroke-width="2"/>
+                <circle cx="50" cy="30" r="4" class="fill-slate-400 dark:fill-slate-500 svg-element"/>
+                <g class="woofer-anim">
+                  <circle cx="50" cy="65" r="16" class="fill-slate-100 dark:fill-slate-700 stroke-slate-300 dark:stroke-slate-600 svg-element" stroke-width="2"/>
+                  <circle cx="50" cy="65" r="8" class="fill-ocean-600 dark:fill-ocean-500 svg-element transition-colors"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="font-title text-lg sm:text-xl text-slate-800 dark:text-white mb-2">북셸프 명품 스피커</h3>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-sans-ui">
+              묵직하고 단단한 사운드 베이스가 하루 일과의 휴식기를 완벽하게 장식합니다.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-dashed border-slate-100 dark:border-slate-700 flex justify-between text-[10px] sm:text-[11px] font-sans-ui text-slate-400 dark:text-slate-500 font-bold">
+            <span>#아지트사운드</span>
+            <span class="text-ocean-600 dark:text-ocean-400 font-semibold">Hover: 우퍼 강력 진동</span>
+          </div>
+        </div>
+
+        <!-- 3. 의자 (의자는 가만히 있고 오른편에서 책상이 다가오는 애니메이션 구현) -->
+        <div class="group bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-ocean-500 dark:hover:border-ocean-400 transition-all duration-300 flex flex-col justify-between cursor-pointer shadow-sm hover:shadow-md sm:col-span-2 md:col-span-1">
+          <div>
+            <div class="h-40 sm:h-44 bg-slate-50 dark:bg-slate-900 rounded-xl mb-5 flex items-center justify-center border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
+              <svg class="w-28 h-28 sm:w-32 sm:h-32" viewBox="0 0 120 120" fill="none">
+                <g class="chair-element">
+                  <line x1="38" y1="75" x2="38" y2="92" class="stroke-slate-400 dark:stroke-slate-500 svg-element" stroke-width="3"/>
+                  <line x1="20" y1="92" x2="56" y2="92" class="stroke-slate-400 dark:stroke-slate-500 svg-element" stroke-width="3"/>
+                  <circle cx="20" cy="92" r="3" class="fill-slate-400 dark:fill-slate-500"/>
+                  <circle cx="56" cy="92" r="3" class="fill-slate-400 dark:fill-slate-500"/>
+                  <rect x="24" y="25" width="28" height="38" rx="4" class="fill-white dark:fill-slate-800 stroke-ocean-600 dark:stroke-ocean-400 svg-element" stroke-width="2.5"/>
+                  <line x1="33" y1="30" x2="33" y2="58" class="stroke-ocean-400 dark:stroke-ocean-500 svg-element" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <line x1="43" y1="30" x2="43" y2="58" class="stroke-ocean-400 dark:stroke-ocean-500 svg-element" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <rect x="18" y="63" width="40" height="12" rx="3" class="fill-ocean-600 dark:fill-ocean-400 svg-element"/>
+                </g>
+                <g class="desk-element translate-x-20 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-700 ease-out">
+                  <rect x="68" y="55" width="44" height="6" rx="1" class="fill-slate-300 dark:fill-slate-600 stroke-slate-400 dark:stroke-slate-500" stroke-width="1.5"/>
+                  <line x1="74" y1="61" x2="74" y2="95" class="stroke-slate-400 dark:stroke-slate-500" stroke-width="2.5"/>
+                  <line x1="106" y1="61" x2="106" y2="95" class="stroke-slate-400 dark:stroke-slate-500" stroke-width="2.5"/>
+                  <line x1="74" y1="75" x2="106" y2="75" class="stroke-slate-300 dark:stroke-slate-600" stroke-width="1" stroke-dasharray="2 2"/>
+                  <rect x="80" y="38" width="20" height="12" rx="1.5" class="fill-white dark:fill-slate-800 stroke-ocean-500 dark:stroke-ocean-400" stroke-width="1.5"/>
+                  <line x1="90" y1="50" x2="90" y2="55" class="stroke-ocean-500 dark:stroke-ocean-400" stroke-width="2"/>
+                  <line x1="85" y1="55" x2="95" y2="55" class="stroke-ocean-500 dark:stroke-ocean-400" stroke-width="1.5"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="font-title text-lg sm:text-xl text-slate-800 dark:text-white mb-2">인체공학 메쉬 체어</h3>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-sans-ui">
+              오랜 시간 책상 앞에 앉아 있어도 몸에 무리가 가지 않도록 안락하게 등받이를 받쳐 줍니다.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-dashed border-slate-100 dark:border-slate-700 flex justify-between text-[10px] sm:text-[11px] font-sans-ui text-slate-400 dark:text-slate-500 font-bold">
+            <span>#안락함의가치</span>
+            <span class="text-ocean-600 dark:text-ocean-400 animate-pulse">Hover: 책상이 스르륵 접근</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-12 sm:mt-16 flex flex-col items-center">
+        <button data-next="#wishlist" class="click-me-btn relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-transparent cursor-pointer select-none group">
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-400 dark:border-ocean-300 ripple-continuous-1 pointer-events-none"></span>
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-500 dark:border-ocean-400 ripple-continuous-2 pointer-events-none"></span>
+          <span class="font-sans-ui text-xs sm:text-sm font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform">Next</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. 위시리스트 & 콜라 캔 오픈 인터랙션 -->
+  <section id="wishlist" class="min-h-screen py-16 sm:py-24 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex flex-col justify-center transition-colors duration-500">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        
+        <!-- 퀘스트 로그 -->
+        <div class="lg:col-span-5 space-y-6 sm:space-y-8">
+          <div class="space-y-3 sm:space-y-4">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 font-sans-ui">Dream Desk Build-Up Log</span>
+            <h2 class="font-title text-2xl sm:text-3xl md:text-4xl text-slate-800 dark:text-white leading-tight">아지트 완성도 100%를 향해</h2>
+            <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed font-sans-ui">
+              지금 당장은 비어 있는 구석들이 많지만, 하나씩 위시리스트를 채워가며 나만의 성지를 꾸며갈 미래를 그립니다.
+            </p>
+          </div>
+
+          <div class="space-y-3 sm:space-y-4 bg-ocean-50/50 dark:bg-slate-900/50 p-5 sm:p-6 rounded-2xl border border-dashed border-ocean-200 dark:border-slate-700">
+            
+            <div class="flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border border-ocean-100 dark:border-slate-700">
+              <span class="bg-ocean-100 dark:bg-slate-700 text-ocean-600 dark:text-ocean-400 p-1.5 rounded-full shrink-0">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+              </span>
+              <div>
+                <h4 class="font-bold text-slate-700 dark:text-slate-300 text-xs sm:text-sm line-through decoration-ocean-400/50 font-sans-ui">소리 좋은 기계식 키보드</h4>
+                <p class="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui mt-0.5">완료! 정갈하고 카랑카랑한 타건감 완성</p>
+              </div>
+            </div>
+
+            <!-- 스피커 (클릭 시 동적 완성/WISH 상태 전환) -->
+            <div id="wishItem2" onclick="toggleWish(2)" class="flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border-[1.5px] border-slate-300 dark:border-slate-600 shadow-sm transition-all duration-300 cursor-pointer hover:scale-[1.02] select-none">
+              <div id="wishIcon2" class="shrink-0 flex items-center justify-center">
+                <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-[1.5px] border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 dark:text-slate-500 font-bold text-[10px] sm:text-xs font-sans-ui">
+                  2
+                </span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-center mb-0.5">
+                  <h4 id="wishTitle2" class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm font-sans-ui transition-all duration-300">공간을 채우는 사운드 스피커</h4>
+                  <span id="wishBadge2" class="text-[8px] sm:text-[9px] text-slate-500 dark:text-slate-400 font-extrabold bg-slate-100 dark:bg-slate-700 px-1.5 sm:px-2 py-0.5 rounded font-sans-ui transition-all duration-300">WISH</span>
+                </div>
+                <p id="wishDesc2" class="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui transition-all duration-300">베이스가 묵직한 소리 세팅 예정</p>
+              </div>
+            </div>
+
+            <!-- 미니 냉장고 (클릭 시 동적 완성/WISH 상태 전환) -->
+            <div id="wishItem3" onclick="toggleWish(3)" class="flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border-[1.5px] border-ocean-500 dark:border-ocean-400 shadow-sm transition-all duration-300 cursor-pointer hover:scale-[1.02] select-none">
+              <div id="wishIcon3" class="shrink-0 flex items-center justify-center">
+                <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-[1.5px] border-ocean-500 dark:border-ocean-400 flex items-center justify-center text-ocean-600 dark:text-ocean-400 font-bold text-[10px] sm:text-xs font-sans-ui">
+                  3
+                </span>
+              </div>
+              <div class="flex-1">
+                <div class="flex justify-between items-center mb-0.5">
+                  <h4 id="wishTitle3" class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm font-sans-ui transition-all duration-300">미니 캔음료수 쇼케이스</h4>
+                  <span id="wishBadge3" class="text-[8px] sm:text-[9px] text-ocean-700 dark:text-ocean-300 font-extrabold bg-ocean-50 dark:bg-ocean-900 px-1.5 sm:px-2 py-0.5 rounded font-sans-ui transition-all duration-300">WISH</span>
+                </div>
+                <p id="wishDesc3" class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold font-sans-ui transition-all duration-300">작업을 마치고 들이키는 시원한 한 캔 보관소</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 업그레이드된 고해상도 2D 라이브 냉장고 쇼케이스 -->
+        <div class="lg:col-span-7 flex flex-col items-center">
+          
+          <!-- 피드백 가이드 박스 -->
+          <div class="mb-4 text-center font-sans-ui">
+            <span class="inline-flex items-center gap-1.5 text-xs bg-ocean-500 text-white px-3 py-1 rounded-full font-bold shadow-sm animate-bounce" id="fridge-status-badge">
+              🚪 냉장고 문을 열어보세요!
+            </span>
+          </div>
+
+          <div class="relative w-full max-w-[340px] sm:max-w-[380px] h-[440px] bg-slate-100 dark:bg-slate-900 rounded-[36px] p-6 shadow-2xl border-4 border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col justify-between smooth-transition">
+            
+            <!-- 냉장고 내부 챔버 영역 -->
+            <div class="relative flex-1 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-4 overflow-hidden border border-slate-800 flex flex-col justify-between fridge-perspective">
+              
+              <!-- 내부 네온 LED 바 백그라운드 발광 효과 -->
+              <div class="absolute inset-x-0 top-1.5 h-1 bg-cyan-400/80 blur-sm shadow-[0_0_12px_rgba(34,211,238,0.8)] animate-pulse"></div>
+              <div class="absolute inset-y-0 left-1 w-0.5 bg-cyan-400/30 blur-[1px]"></div>
+              
+              <!-- 냉풍 파티클 & 탄산 캔오프닝 효과를 그릴 전용 캔버스 -->
+              <canvas id="fridgeCanvas" class="absolute inset-0 mist-canvas z-10 w-full h-full"></canvas>
+
+              <!-- 냉장고 선반 1층 (환타, 사이다) -->
+              <div class="relative z-[5] w-full mt-2 flex flex-col items-center">
+                <div class="flex justify-around w-full px-4 mb-1">
+                  <!-- 사이다 (Chilsung Green) -->
+                  <div class="group/can relative cursor-pointer" onclick="clickDrink('cider')" onmouseenter="hoverDrink()">
+                    <svg class="w-10 h-16 transform group-hover/can:-translate-y-2 group-hover/can:scale-105 duration-300" viewBox="0 0 40 70">
+                      <!-- 캔 몸통 -->
+                      <rect x="2" y="4" width="36" height="62" rx="6" fill="#15803d" stroke="#16a34a" stroke-width="1.5"/>
+                      <rect x="5" y="8" width="30" height="12" rx="3" fill="#ffffff" opacity="0.15"/>
+                      <!-- 스타 데코레이션 -->
+                      <polygon points="20,18 23,26 31,26 25,31 27,39 20,34 13,39 15,31 9,26 17,26" fill="#ffffff" opacity="0.9"/>
+                      <!-- 로고 텍스트 -->
+                      <rect x="8" y="46" width="24" height="6" rx="1" fill="#eab308"/>
+                      <text x="20" y="52" fill="#ffffff" font-size="5" font-family="sans-serif" font-weight="900" text-anchor="middle">CIDER</text>
+                    </svg>
+                  </div>
+                  <!-- 환타 (Orange) -->
+                  <div class="group/can relative cursor-pointer" onclick="clickDrink('fanta')" onmouseenter="hoverDrink()">
+                    <svg class="w-10 h-16 transform group-hover/can:-translate-y-2 group-hover/can:scale-105 duration-300" viewBox="0 0 40 70">
+                      <rect x="2" y="4" width="36" height="62" rx="6" fill="#ea580c" stroke="#f97316" stroke-width="1.5"/>
+                      <rect x="5" y="8" width="30" height="12" rx="3" fill="#ffffff" opacity="0.15"/>
+                      <!-- 오렌지 과일 슬라이스 데코 -->
+                      <circle cx="20" cy="28" r="8" fill="#fdba74"/>
+                      <circle cx="20" cy="28" r="6" fill="#ea580c"/>
+                      <line x1="20" y1="22" x2="20" y2="34" stroke="#fdba74" stroke-width="1"/>
+                      <line x1="14" y1="28" x2="26" y2="28" stroke="#fdba74" stroke-width="1"/>
+                      <!-- 로고 텍스트 -->
+                      <rect x="8" y="46" width="24" height="6" rx="1" fill="#1e3a8a"/>
+                      <text x="20" y="51" fill="#ffffff" font-size="5" font-family="sans-serif" font-weight="900" text-anchor="middle">FANTA</text>
+                    </svg>
+                  </div>
+                </div>
+                <!-- 1층 철조 선반 랙 -->
+                <div class="w-full h-1.5 bg-gradient-to-r from-slate-700 via-slate-400 to-slate-700 rounded-full shadow-md"></div>
+              </div>
+
+              <!-- 냉장고 선반 2층 (대망의 코카콜라 캔 전면배치) -->
+              <div class="relative z-[5] w-full mb-2 flex flex-col items-center">
+                <div class="relative flex justify-center w-full px-4 mb-1">
+                  
+                  <!-- 코카콜라 캔 가치 극대화 -->
+                  <div id="cokeCanWrapper" class="group/coke relative cursor-pointer z-20" onclick="grabCoke()" onmouseenter="hoverDrink()">
+                    
+                    <!-- 호버링 링 발광 효과 -->
+                    <div class="absolute -inset-2 bg-red-600/30 blur-md rounded-full opacity-0 group-hover/coke:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                    
+                    <svg id="cokeCanSvg" class="w-14 h-22 transform transition-all duration-500 origin-center group-hover/coke:-translate-y-3 group-hover/coke:scale-110" viewBox="0 0 50 80">
+                      <!-- 캔 실버 테두리 및 반짝임 -->
+                      <rect x="2" y="3" width="46" height="74" rx="7" fill="#dc2626" stroke="#ef4444" stroke-width="1.5"/>
+                      <!-- 알루미늄 탑 뚜껑 반사광 -->
+                      <ellipse cx="25" cy="5" rx="21" ry="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1"/>
+                      <!-- 캔 바디 볼륨감 하이라이트 -->
+                      <rect x="5" y="8" width="10" height="64" rx="2" fill="#ffffff" opacity="0.15"/>
+                      <rect x="40" y="8" width="5" height="64" rx="1" fill="#000000" opacity="0.15"/>
+                      <!-- 코카콜라 특유의 다이내믹 화이트 웨이브 라인 디자인 -->
+                      <path d="M 4 35 Q 15 25 25 45 T 46 32 L 46 42 Q 35 32 25 52 T 4 45 Z" fill="#ffffff" opacity="0.95"/>
+                      <path d="M 4 41 Q 15 33 25 51 T 46 40 L 46 44 Q 35 35 25 55 T 4 47 Z" fill="#ffffff" opacity="0.4"/>
+                      <!-- 로고 영문 폰트 스타일링 타이포 -->
+                      <text x="25" y="24" fill="#ffffff" font-size="7" font-family="Impact, Charcoal, sans-serif" font-weight="900" letter-spacing="0.5" text-anchor="middle">COLA</text>
+                      <text x="25" y="65" fill="#ffffff" font-size="5" font-family="sans-serif" font-weight="900" text-anchor="middle">ORIGINAL</text>
+                      <!-- 송글송글 맺힌 리얼한 물방울 디테일 -->
+                      <circle cx="12" cy="18" r="1.2" fill="#ffffff" opacity="0.8"/>
+                      <circle cx="38" cy="28" r="1.5" fill="#ffffff" opacity="0.8"/>
+                      <circle cx="18" cy="52" r="1" fill="#ffffff" opacity="0.9"/>
+                      <circle cx="32" cy="48" r="1.3" fill="#ffffff" opacity="0.7"/>
+                    </svg>
+
+                    <!-- 따개 SVG 고도화 (캔 뚜껑 열기 애니메이션을 위해 분리) -->
+                    <div id="cokeTab" class="absolute top-[2px] left-1/2 -translate-x-1/2 w-4 h-4 pointer-events-none transform transition-all duration-300 origin-bottom z-10 opacity-0 group-hover/coke:opacity-100">
+                      <svg class="w-full h-full" viewBox="0 0 16 16" fill="none">
+                        <rect x="5" y="2" width="6" height="8" rx="1.5" fill="#94a3b8" stroke="#64748b" stroke-width="1"/>
+                        <circle cx="8" cy="4" r="1.5" fill="#cbd5e1"/>
+                      </svg>
+                    </div>
+
+                  </div>
+
+                </div>
+                <!-- 2층 철조 선반 랙 -->
+                <div class="w-full h-1.5 bg-gradient-to-r from-slate-700 via-slate-400 to-slate-700 rounded-full shadow-md"></div>
+              </div>
+
+              <!-- 인터랙티브 스냅 인 핸드 (마치 잡는 것처럼 날아오는 팔과 손 SVG) -->
+              <div id="handWrapper" class="absolute bottom-[-150px] right-[-150px] w-48 h-48 z-40 pointer-events-none transform transition-all duration-[600ms] ease-out">
+                <svg class="w-full h-full" viewBox="0 0 100 100">
+                  <!-- 손목 소매 -->
+                  <path d="M 75 90 L 50 65 L 65 50 L 90 75 Z" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+                  <!-- 손등/손바닥 -->
+                  <path d="M 45 60 C 35 55 25 45 35 35 C 40 30 50 35 55 45 Z" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/>
+                  <!-- 손가락마디 (움켜쥐기 위한 곡률 디자인) -->
+                  <!-- 엄지 -->
+                  <path d="M 33 46 Q 18 36 22 30 Q 26 28 35 40" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/>
+                  <!-- 검지 -->
+                  <path d="M 32 38 Q 12 24 18 18 Q 24 16 35 32" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/>
+                  <!-- 중지 -->
+                  <path d="M 36 34 Q 15 16 22 10 Q 28 8 39 28" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/>
+                  <!-- 약지 -->
+                  <path d="M 42 34 Q 22 18 28 12 Q 34 10 44 28" fill="#fed7aa" stroke="#f97316" stroke-width="1.5"/>
+                </svg>
+              </div>
+
+              <!-- 냉장고 리얼 3D 도어 (호버 시 3D 회전하며 Open) -->
+              <div id="fridgeDoor" class="absolute inset-0 bg-slate-200/90 dark:bg-slate-800/95 border-l-[6px] border-slate-300 dark:border-slate-700 z-30 flex flex-col justify-between p-4 shadow-inner fridge-door">
+                <!-- 반투명 강화유리 창 디자인 -->
+                <div class="w-full flex-1 rounded-xl bg-cyan-100/10 border border-white/20 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
+                  <!-- 김 서림 효과 무늬 -->
+                  <div class="absolute inset-0 bg-gradient-to-tr from-white/5 via-white/10 to-transparent pointer-events-none"></div>
+                  <!-- 유리 반사광 한 줄기 -->
+                  <div class="absolute top-0 left-[-50%] w-[30%] h-[200%] bg-white/20 transform rotate-[25deg] transition-all duration-[1500ms] group-hover:translate-x-[400%]"></div>
+                  
+                  <div class="w-14 h-14 rounded-full border-4 border-white/40 dark:border-slate-600/40 flex items-center justify-center bg-white/10 backdrop-blur-sm shadow-md animate-pulse">
+                    <svg class="w-7 h-7 text-white dark:text-ocean-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                  </div>
+                  <span class="mt-4 text-xs font-bold text-slate-500 dark:text-slate-300 tracking-wider font-sans-ui bg-white/80 dark:bg-slate-900/80 px-2.5 py-1 rounded-full shadow">
+                    TOUCH TO UNLOCK
+                  </span>
+                </div>
+                <!-- 알루미늄 일체형 도어 핸들 (손잡이) -->
+                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 w-4.5 h-24 bg-gradient-to-r from-slate-400 to-slate-100 dark:from-slate-600 dark:to-slate-300 rounded-lg shadow-md border border-slate-300 dark:border-slate-500"></div>
+              </div>
+
+            </div>
+
+            <!-- 하부 그릴 벤트 디자인 및 상태 표시 패널 -->
+            <div class="h-10 mt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-2 text-[10px] font-sans-ui text-slate-500 dark:text-slate-400">
+              <div class="flex items-center gap-1.5 font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Active 4.0℃</span>
+              </div>
+              <button onclick="resetFridge(); playBlueSwitch();" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 px-3 py-1 rounded-lg font-bold text-[9px] text-slate-700 dark:text-slate-300 transition-colors">
+                돌려놓기 ↺
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-12 sm:mt-16 flex flex-col items-center">
+        <button data-next="#guestbook" class="click-me-btn relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-transparent cursor-pointer select-none group">
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-400 dark:border-ocean-300 ripple-continuous-1 pointer-events-none"></span>
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-500 dark:border-ocean-400 ripple-continuous-2 pointer-events-none"></span>
+          <span class="font-sans-ui text-xs sm:text-sm font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform">Next</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. 방명록 보드 -->
+  <section id="guestbook" class="min-h-screen py-16 sm:py-24 bg-ocean-50/50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex flex-col justify-center transition-colors duration-500">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+      
+      <div class="text-center space-y-3 sm:space-y-4 mb-10 sm:mb-16">
+        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 font-sans-ui">Stay Connected</span>
+        <h2 class="font-title text-2xl sm:text-3xl md:text-4xl text-slate-800 dark:text-white">아지트에 남기는 발자국 🐾</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mx-auto font-sans-ui px-2">
+          내가 갖고싶은 데스크테리어 소품을 적어봐요
+        </p>
+      </div>
+
+      <!-- 방명록 입력 -->
+      <div class="bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm mb-10 sm:mb-12 transition-colors">
+        <form id="guestForm" onsubmit="submitGuestbook(event)" class="space-y-5 sm:space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            <div class="space-y-2">
+              <label class="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 font-sans-ui">작성자 명칭</label>
+              <input type="text" id="gName" required placeholder="이름 또는 닉네임" class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-transparent text-slate-800 dark:text-white focus:border-ocean-500 dark:focus:border-ocean-400 focus:outline-none text-xs sm:text-sm font-sans-ui font-medium transition-colors">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 font-sans-ui">소망하는 아지트 테마</label>
+              <select id="gTheme" class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-transparent text-slate-800 dark:text-white focus:border-ocean-500 dark:focus:border-ocean-400 focus:outline-none text-xs sm:text-sm font-sans-ui font-medium transition-colors">
+                <option value="🌊 청량한 바다뷰 데스크" class="text-slate-800">🌊 청량한 바다뷰 데스크</option>
+                <option value="💻 시원한 에어컨 빵빵 PC방" class="text-slate-800">💻 시원한 에어컨 빵빵 PC방</option>
+                <option value="🌿 차분한 심해 톤 작업실" class="text-slate-800">🌿 차분한 심해 톤 작업실</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 font-sans-ui">방명록 메시지</label>
+            <textarea id="gMsg" rows="3" required placeholder="빌드업해갈 아지트 여정에 따뜻한 한 마디를 남겨주세요!" class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-transparent text-slate-800 dark:text-white focus:border-ocean-500 dark:focus:border-ocean-400 focus:outline-none text-xs sm:text-sm font-sans-ui font-medium transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="flex justify-end pt-1 sm:pt-2">
+            <button type="submit" class="bg-ocean-600 hover:bg-ocean-700 dark:bg-ocean-500 dark:hover:bg-ocean-600 text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl transition-colors text-xs sm:text-sm font-bold font-sans-ui flex items-center gap-2 shadow-md w-full sm:w-auto justify-center" onclick="playBlueSwitch()">
+              <span>발자국 남기기</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 타임라인 -->
+      <div class="space-y-4">
+        <h3 class="font-title text-lg sm:text-xl text-slate-800 dark:text-white flex items-center gap-2 mb-4 sm:mb-6">
+          <span>최근 남겨진 발자국 소리</span>
+          <span id="gCount" class="text-[10px] sm:text-xs bg-ocean-100 dark:bg-slate-800 text-ocean-600 dark:text-ocean-400 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md font-bold font-sans-ui">0</span>
+        </h3>
+        
+        <div id="gList" class="space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[350px] overflow-y-auto pr-2">
+          <!-- JS 렌더링 영역 -->
+        </div>
+      </div>
+
+      <div class="mt-16 sm:mt-20 flex flex-col items-center">
+        <button data-next="#hero" class="click-me-btn relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-transparent cursor-pointer select-none group">
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-400 dark:border-ocean-300 ripple-continuous-1 pointer-events-none"></span>
+          <span class="absolute inset-0 rounded-full border-2 border-ocean-500 dark:border-ocean-400 ripple-continuous-2 pointer-events-none"></span>
+          <span class="font-sans-ui text-xs sm:text-sm font-bold uppercase tracking-widest text-ocean-600 dark:text-ocean-400 group-hover:scale-110 transition-transform">Next</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 푸터 -->
+  <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 py-12 sm:py-16 font-sans-ui transition-colors duration-500">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
+      <div class="space-y-2 text-center md:text-left">
+        <h4 class="font-title text-base sm:text-lg text-white tracking-wide">나의 드림 아지트</h4>
+        <p class="text-[11px] sm:text-xs text-slate-500 font-medium px-4 md:px-0">
+          “손끝에서 깨어나는 경쾌한 청축음, 잔잔한 파도 같은 휴식”
+        </p>
+        <p class="text-[9px] sm:text-[10px] text-slate-600 font-bold">
+          © 2026 My Dream Deskterior Portfolio. All rights reserved.
+        </p>
+      </div>
+      
+      <div class="flex items-center gap-3 sm:gap-4">
+        <a href="#" class="bg-slate-800 hover:bg-ocean-600 text-slate-300 hover:text-white p-2.5 sm:p-3 rounded-full transition-colors border border-slate-700/50" onclick="playBlueSwitch()">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        </a>
+        <a href="#" class="bg-slate-800 hover:bg-ocean-600 text-slate-300 hover:text-white p-2.5 sm:p-3 rounded-full transition-colors border border-slate-700/50" onclick="playBlueSwitch()">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 파티클 & 공통 이벤트 제어 -->
+  <script>
+    const canvas = document.getElementById('globalParticleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const keyLabels = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Shift', 'Enter', 'Alt', 'Ctrl', 'Esc', 'Space'];
+    
+    class KeycapParticle {
+      constructor(x, y) {
+        this.x = x; this.y = y;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4 + 3;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed - 2;
+        this.opacity = 1;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+        this.label = keyLabels[Math.floor(Math.random() * keyLabels.length)];
+        this.width = this.label.length > 3 ? 30 : 18;
+        this.height = 16;
+        this.isDark = document.documentElement.classList.contains('dark');
+      }
+
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        this.vy += 0.15;
+        this.rotation += this.rotationSpeed;
+        this.opacity -= 0.015;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.globalAlpha = this.opacity;
+
+        const mainColor = this.isDark ? '#0ea5e9' : '#0284c7';
+        const bgColor = this.isDark ? '#1e293b' : '#ffffff';
+        const shadowColor = this.isDark ? 'rgba(14, 165, 233, 0.3)' : 'rgba(2, 132, 199, 0.3)';
+
+        ctx.fillStyle = shadowColor;
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2 + 1, -this.height/2 + 2, this.width, this.height, 3);
+        ctx.fill();
+
+        ctx.fillStyle = bgColor;
+        ctx.strokeStyle = mainColor;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = mainColor;
+        ctx.font = `bold 7px 'Pretendard', sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(this.label, 0, 0.5);
+        ctx.restore();
+      }
+    }
+
+    const clickButtons = document.querySelectorAll('.click-me-btn');
+
+    clickButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        playBlueSwitch();
+
+        const clickX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clickY = e.clientY || (e.touches && e.touches[0].clientY);
+        
+        if(clickX && clickY) {
+          for (let i = 0; i < 15; i++) {
+            particles.push(new KeycapParticle(clickX, clickY));
+          }
+        }
+
+        const targetId = btn.getAttribute('data-next');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          setTimeout(() => { targetElement.scrollIntoView({ behavior: 'smooth' }); }, 150);
+        }
+      });
+    });
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.opacity > 0);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    requestAnimationFrame(animateParticles);
+
+  </script>
+
+  <!-- 냉장고 리얼 인터랙티브 엔진 & 캔버스 렌더러 -->
+  <script>
+    const fridgeDoor = document.getElementById('fridgeDoor');
+    const fridgeCanvas = document.getElementById('fridgeCanvas');
+    const fCtx = fridgeCanvas.getContext('2d');
+    const cokeWrapper = document.getElementById('cokeCanWrapper');
+    const cokeSvg = document.getElementById('cokeCanSvg');
+    const cokeTab = document.getElementById('cokeTab');
+    const handWrapper = document.getElementById('handWrapper');
+    const statusBadge = document.getElementById('fridge-status-badge');
+
+    let fridgeOpened = false;
+    let cokeGrabbed = false;
+    let cokeOpened = false;
+    let fridgeParticles = [];
+
+    // 캔버스 크기 제어
+    function resizeFridgeCanvas() {
+      fridgeCanvas.width = fridgeCanvas.parentElement.clientWidth;
+      fridgeCanvas.height = fridgeCanvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeFridgeCanvas);
+    resizeFridgeCanvas();
+
+    // 냉장고 가동 파티클 클래스 (냉기 안개 및 스파클 탄산 탄화물)
+    class FridgeParticle {
+      constructor(type, x, y, options = {}) {
+        this.type = type; // 'mist' or 'fizz'
+        this.x = x;
+        this.y = y;
+        this.vx = options.vx || (Math.random() * 2 - 1);
+        this.vy = options.vy || (Math.random() * 2 + 1);
+        this.size = options.size || (Math.random() * 15 + 10);
+        this.opacity = options.opacity || 0.6;
+        this.color = options.color || 'rgba(255, 255, 255, 0.4)';
+        this.life = 1.0;
+        this.decay = options.decay || 0.02;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.type === 'mist') {
+          this.vy += 0.05; // 냉풍은 바닥으로 가라앉음
+          this.size += 0.2;
+        } else if (this.type === 'fizz') {
+          this.vy += 0.1; // 탄산은 중력 포물선 그리기
+          this.vx *= 0.98;
+        }
+        this.life -= this.decay;
+      }
+
+      draw() {
+        fCtx.save();
+        fCtx.globalAlpha = Math.max(0, this.life * this.opacity);
+        fCtx.fillStyle = this.color;
+        fCtx.beginPath();
+        if (this.type === 'mist') {
+          // 흐릿한 증기 느낌 표현
+          let grad = fCtx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+          grad.addColorStop(0, this.color);
+          grad.addColorStop(1, 'rgba(255,255,255,0)');
+          fCtx.fillStyle = grad;
+          fCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        } else {
+          // 탄산 스파클링 서클
+          fCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        }
+        fCtx.fill();
+        fCtx.restore();
+      }
+    }
+
+    // 마우스 냉장고 영역 진입 시 문 3D 오픈 트리거
+    fridgeDoor.parentElement.addEventListener('mouseenter', () => {
+      if (!fridgeOpened) {
+        openFridge();
+      }
+    });
+
+    // 클릭 시 강제 개방 (모바일 지원성 확보)
+    fridgeDoor.parentElement.addEventListener('click', (e) => {
+      if (!fridgeOpened) {
+        openFridge();
+        e.stopPropagation();
+      }
+    });
+
+    function openFridge() {
+      fridgeOpened = true;
+      fridgeDoor.classList.add('open');
+      statusBadge.innerHTML = "🥤 콜라 캔을 터치해보세요!";
+      statusBadge.className = "inline-flex items-center gap-1.5 text-xs bg-red-500 text-white px-3 py-1 rounded-full font-bold shadow-sm animate-pulse";
+      playFridgeSound('open');
+      
+      // 도어 오픈 시 냉기 분출 파티클 생성
+      for (let i = 0; i < 40; i++) {
+        fridgeParticles.push(new FridgeParticle('mist', Math.random() * fridgeCanvas.width, 100, {
+          vy: Math.random() * 2 + 1,
+          vx: Math.random() * 4 - 2,
+          size: Math.random() * 15 + 20,
+          color: 'rgba(224, 242, 254, 0.45)', // 시원한 스카이블루톤 냉풍
+          decay: 0.015
+        }));
+      }
+    }
+
+    function hoverDrink() {
+      if (fridgeOpened && !cokeGrabbed) {
+        playFridgeSound('clink');
+      }
+    }
+
+    // 음료 선택 피드백 (사이다 & 환타용 임시 액션)
+    function clickDrink(type) {
+      if (!fridgeOpened) return;
+      if (cokeGrabbed) return;
+      
+      playFridgeSound('clink');
+      showToast(`${type === 'cider' ? '사이다' : '환타'}는 아직 얼고 있어요! 오리지널 콜라를 꺼내보세요.`);
+    }
+
+    // 코카콜라 캔 역동적 Grab & Pull 액션
+    function grabCoke() {
+      if (!fridgeOpened) return;
+      if (cokeGrabbed) return;
+
+      cokeGrabbed = true;
+      statusBadge.innerHTML = "⚡ 짜릿하게 캔을 따는 중!";
+      statusBadge.className = "inline-flex items-center gap-1.5 text-xs bg-amber-500 text-white px-3 py-1 rounded-full font-bold shadow-sm animate-bounce";
+
+      // 1. 사람 손목이 오른쪽 아래 구석에서 비스듬히 초고속 돌진
+      handWrapper.style.bottom = "110px";
+      handWrapper.style.right = "80px";
+      handWrapper.style.transform = "scale(1.1) rotate(-15deg)";
+
+      setTimeout(() => {
+        // 2. 집어 들어 올림 (Clink 사운드 및 콜라 캔을 앞쪽으로 튕겨냄)
+        playFridgeSound('clink');
+        
+        // 캔에 손이 닿은 시점에 캔을 크게 부풀려 튀어 나오는 3D 느낌 극대화
+        cokeSvg.style.transform = "scale(2.2) translateY(5px) rotate(5deg)";
+        cokeSvg.style.zIndex = "45";
+        cokeWrapper.style.transform = "translate(-50px, -20px)";
+        cokeWrapper.style.zIndex = "45";
+
+        // 냉풍 튀는 스파클 방울
+        for (let i = 0; i < 20; i++) {
+          fridgeParticles.push(new FridgeParticle('mist', 160, 140, {
+            vx: Math.random() * 6 - 3,
+            vy: Math.random() * 4 - 2,
+            size: Math.random() * 10 + 5,
+            color: 'rgba(255, 255, 255, 0.7)'
+          }));
+        }
+
+        setTimeout(() => {
+          // 3. 캔 뚜껑 경쾌하게 오프닝 (치익- 쏴아 탄산 대폭발)
+          openCanFizz();
+        }, 800);
+
+      }, 600);
+    }
+
+    function openCanFizz() {
+      if (cokeOpened) return;
+      cokeOpened = true;
+
+      playFridgeSound('pop');
+      showToast("캬아아! 이 맛에 몰입하죠! 시원한 청량감이 온 몸에 퍼집니다!");
+
+      // 캔 따개 꺾이는 모습 구현
+      cokeTab.style.transform = "rotateX(180deg) scale(0.9)";
+      cokeTab.style.top = "1px";
+
+      // 탄산 파티클 가속 분출 루프 구동
+      const sprayInterval = setInterval(() => {
+        if (!cokeGrabbed) {
+          clearInterval(sprayInterval);
+          return;
+        }
+
+        // 콜라 색 탄산수 방울 (다크 브라운 + 밝은 카라멜 골드)
+        for (let i = 0; i < 6; i++) {
+          fridgeParticles.push(new FridgeParticle('fizz', 110, 80, {
+            vx: Math.random() * 8 - 4,
+            vy: -Math.random() * 7 - 4, // 위로 솟구침
+            size: Math.random() * 3 + 1.5,
+            opacity: 0.9,
+            color: i % 2 === 0 ? 'rgba(120, 53, 4, 0.85)' : 'rgba(251, 191, 36, 0.9)', // 콜라/카라멜 색상
+            decay: 0.02
+          }));
+        }
+
+        // 촉촉한 하얀 김 서림 방울도 동시에 뿜뿜
+        fridgeParticles.push(new FridgeParticle('mist', 110, 80, {
+          vx: Math.random() * 3 - 1.5,
+          vy: -Math.random() * 2 - 1,
+          size: Math.random() * 8 + 6,
+          color: 'rgba(255, 255, 255, 0.4)',
+          decay: 0.03
+        }));
+
+      }, 30);
+
+      // 3초간 분사 후 감쇠
+      setTimeout(() => {
+        clearInterval(sprayInterval);
+        statusBadge.innerHTML = "✅ 꺼내기 성공! (초기화 가능)";
+        statusBadge.className = "inline-flex items-center gap-1.5 text-xs bg-emerald-500 text-white px-3 py-1 rounded-full font-bold shadow-sm";
+      }, 3000);
+    }
+
+    // 냉장고 쇼케이스 원래대로 돌려놓기 (Reset)
+    function resetFridge() {
+      fridgeOpened = false;
+      cokeGrabbed = false;
+      cokeOpened = false;
+      fridgeParticles = [];
+
+      // 문 닫기
+      fridgeDoor.classList.remove('open');
+      statusBadge.innerHTML = "🚪 냉장고 문을 열어보세요!";
+      statusBadge.className = "inline-flex items-center gap-1.5 text-xs bg-ocean-500 text-white px-3 py-1 rounded-full font-bold shadow-sm animate-bounce";
+
+      // 손 복귀
+      handWrapper.style.bottom = "-150px";
+      handWrapper.style.right = "-150px";
+      handWrapper.style.transform = "none";
+
+      // 콜라 캔 복귀
+      cokeSvg.style.transform = "none";
+      cokeWrapper.style.transform = "none";
+      cokeWrapper.style.zIndex = "20";
+      cokeTab.style.transform = "none";
+      cokeTab.style.top = "2px";
+
+      showToast("쇼케이스 문이 굳게 닫히고 시원한 냉기가 채워집니다.");
+    }
+
+    // 냉장고 내 드로잉 루프
+    function drawFridgeLoop() {
+      fCtx.clearRect(0, 0, fridgeCanvas.width, fridgeCanvas.height);
+      
+      fridgeParticles = fridgeParticles.filter(p => p.life > 0);
+      fridgeParticles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(drawFridgeLoop);
+    }
+    requestAnimationFrame(drawFridgeLoop);
+
+  </script>
+
+  <!-- 방명록 및 모니터 타이핑 애니메이션 인터랙션 로직 -->
+  <script>
+    let wishStates = {
+      2: false,
+      3: false
+    };
+
+    function toggleWish(num) {
+      wishStates[num] = !wishStates[num];
+      playBlueSwitch(); // 청축 타건 기계식 사운드로 반응성 보강
+      
+      const card = document.getElementById(`wishItem${num}`);
+      const iconContainer = document.getElementById(`wishIcon${num}`);
+      const title = document.getElementById(`wishTitle${num}`);
+      const badge = document.getElementById(`wishBadge${num}`);
+      const desc = document.getElementById(`wishDesc${num}`);
+      
+      if (wishStates[num]) {
+        // 완료(체크) 상태 디자인 활성화
+        card.className = "flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border border-ocean-100 dark:border-slate-700 shadow-sm transition-all duration-300 cursor-pointer hover:scale-[1.02] select-none";
+        
+        iconContainer.innerHTML = `
+          <span class="bg-ocean-100 dark:bg-slate-700 text-ocean-600 dark:text-ocean-400 p-1.5 rounded-full shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 transition-all">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+          </span>
+        `;
+        
+        title.className = "font-bold text-slate-700 dark:text-slate-300 text-xs sm:text-sm line-through decoration-ocean-400/50 font-sans-ui transition-all duration-300";
+        badge.className = "text-[8px] sm:text-[9px] text-ocean-600 dark:text-ocean-400 font-extrabold bg-ocean-50 dark:bg-ocean-950/30 px-1.5 sm:px-2 py-0.5 rounded font-sans-ui transition-all duration-300";
+        badge.innerText = "COMPLETE";
+        
+        if (num === 2) {
+          desc.innerText = "완료! 묵직하고 공간감 넘치는 사운드 세팅 완료";
+          desc.className = "text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui mt-0.5 transition-all duration-300";
+        } else if (num === 3) {
+          desc.innerText = "완료! 시원한 청량감 가득 미니 쇼케이스 영입 완료";
+          desc.className = "text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui mt-0.5 transition-all duration-300";
+        }
+        showToast(`위시리스트 #${num} 완료되었습니다! 🎉`);
+      } else {
+        // 원본 대기(WISH) 상태 복구
+        if (num === 2) {
+          card.className = "flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border-[1.5px] border-slate-300 dark:border-slate-600 shadow-sm transition-all duration-300 cursor-pointer hover:scale-[1.02] select-none";
+          iconContainer.innerHTML = `
+            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-[1.5px] border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 dark:text-slate-500 font-bold text-[10px] sm:text-xs font-sans-ui">2</span>
+          `;
+          title.className = "font-bold text-slate-800 dark:text-white text-xs sm:text-sm font-sans-ui transition-all duration-300";
+          badge.className = "text-[8px] sm:text-[9px] text-slate-500 dark:text-slate-400 font-extrabold bg-slate-100 dark:bg-slate-700 px-1.5 sm:px-2 py-0.5 rounded font-sans-ui transition-all duration-300";
+          badge.innerText = "WISH";
+          desc.innerText = "베이스가 묵직한 소리 세팅 예정";
+          desc.className = "text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui transition-all duration-300";
+        } else if (num === 3) {
+          card.className = "flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 p-3 sm:p-4 rounded-xl border-[1.5px] border-ocean-500 dark:border-ocean-400 shadow-sm transition-all duration-300 cursor-pointer hover:scale-[1.02] select-none";
+          iconContainer.innerHTML = `
+            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full border-[1.5px] border-ocean-500 dark:border-ocean-400 flex items-center justify-center text-ocean-600 dark:text-ocean-400 font-bold text-[10px] sm:text-xs font-sans-ui">3</span>
+          `;
+          title.className = "font-bold text-slate-800 dark:text-white text-xs sm:text-sm font-sans-ui transition-all duration-300";
+          badge.className = "text-[8px] sm:text-[9px] text-ocean-700 dark:text-ocean-300 font-extrabold bg-ocean-50 dark:bg-ocean-900 px-1.5 sm:px-2 py-0.5 rounded font-sans-ui transition-all duration-300";
+          badge.innerText = "WISH";
+          desc.innerText = "작업을 마치고 들이키는 시원한 한 캔 보관소";
+          desc.className = "text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold font-sans-ui transition-all duration-300";
+        }
+        showToast(`위시리스트 #${num} 진행 중 상태로 복구되었습니다.`);
+      }
+    }
+
+    let savedMsg = [];
+
+    function syncBoard() {
+      const storageData = localStorage.getItem('dream_desk_ocean_book');
+      if (storageData) {
+        savedMsg = JSON.parse(storageData);
+      } else {
+        savedMsg = [
+          {
+            name: "데스크 셋업가",
+            theme: "🌊 청량한 바다뷰 데스크",
+            message: "여름 바다 톤으로 새롭게 바뀐 디자인이 정말 시원하고 무게감 있어서 좋네요! 다크모드의 심해 느낌도 일품입니다.",
+            date: "2026.07.13"
+          }
+        ];
+        saveBoard();
+      }
+      renderBoard();
+    }
+
+    function saveBoard() {
+      localStorage.setItem('dream_desk_ocean_book', JSON.stringify(savedMsg));
+    }
+
+    function renderBoard() {
+      const listDiv = document.getElementById('gList');
+      const badge = document.getElementById('gCount');
+
+      listDiv.innerHTML = "";
+      badge.innerText = savedMsg.length;
+
+      if (savedMsg.length === 0) {
+        listDiv.innerHTML = `
+          <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 text-xs sm:text-sm font-bold font-sans-ui">
+            아직 방명록 글귀가 없습니다. 첫 발자국을 남겨주세요!
+          </div>`;
+        return;
+      }
+
+      savedMsg.forEach((msg, index) => {
+        const itemCard = document.createElement('div');
+        itemCard.className = "bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between transition-colors";
+        itemCard.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-2 font-sans-ui">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">${msg.name}</span>
+              <span class="text-[9px] sm:text-[10px] bg-ocean-50 dark:bg-slate-700 text-ocean-600 dark:text-ocean-400 px-2 py-0.5 sm:py-1 rounded font-bold">${msg.theme}</span>
+            </div>
+            <button onclick="removeMessage(${index}); playBlueSwitch();" class="text-slate-300 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1" title="방명록 삭제">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold leading-relaxed whitespace-pre-line">${msg.message}</p>
+          <span class="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 font-bold font-sans-ui self-end mt-2">${msg.date}</span>
+        `;
+        listDiv.appendChild(itemCard);
+      });
+    }
+
+    function submitGuestbook(e) {
+      e.preventDefault();
+      const nameInp = document.getElementById('gName');
+      const themeSel = document.getElementById('gTheme');
+      const msgTxt = document.getElementById('gMsg');
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+
+      const data = {
+        name: nameInp.value.trim(),
+        theme: themeSel.value,
+        message: msgTxt.value.trim(),
+        date: dateStr
+      };
+
+      savedMsg.unshift(data);
+      saveBoard();
+      renderBoard();
+
+      nameInp.value = ""; msgTxt.value = "";
+      showToast("소중한 발자국이 방명록에 기록되었습니다!");
+    }
+
+    function removeMessage(idx) {
+      savedMsg.splice(idx, 1);
+      saveBoard();
+      renderBoard();
+      showToast("메시지가 삭제되었습니다.");
+    }
+
+    // 모니터 타이핑 애니메이션 데이터 및 로직
+    const text1 = "남들에겐 그저 평범한 컴퓨터 책상이겠지만, 저에게 이곳은 가장 편안하고 진솔한 제 모습을 발견하는 특별한 바다 같은 공간입니다.";
+    const text2 = '"작업을 마치고 의자에 기대어 마시는 시원한 음료, 공간 전체를 잔잔하게 채우는 힐링 Lofi 음악."';
+    const text3 = "비록 아직은 채워가야 할 위시리스트가 많지만, 언젠가 저만의 완벽한 성지를 완성할 때까지 매일매일의 몰입을 담아 가꾸어 가겠습니다.";
+    
+    let typingSpeed = 40; 
+    let typingTimeouts = []; 
+
+    function clearTyping() {
+      typingTimeouts.forEach(t => clearTimeout(t));
+      typingTimeouts = [];
+    }
+
+    function changeSpeed(newSpeed, buttonElement) {
+      typingSpeed = newSpeed;
+      
+      const buttons = buttonElement.parentNode.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-ocean-500', 'text-white');
+        btn.classList.add('hover:bg-slate-200', 'dark:hover:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+      });
+
+      buttonElement.classList.remove('hover:bg-slate-200', 'dark:hover:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+      buttonElement.classList.add('bg-ocean-500', 'text-white');
+
+      const speedLabel = newSpeed === 80 ? "느긋한 템포" : newSpeed === 40 ? "기본 템포" : "빠른 타건 템포";
+      showToast(`글씨 출력 속도가 [${speedLabel}]로 변경되었습니다.`);
+
+      clearTyping();
+      startTypingEffect();
+    }
+
+    function startTypingEffect() {
+      const p1 = document.getElementById('typing-p1');
+      const p2 = document.getElementById('typing-p2');
+      const p3 = document.getElementById('typing-p3');
+      const quoteDiv = document.getElementById('typing-quote');
+
+      p1.innerHTML = "";
+      p2.innerHTML = "";
+      p3.innerHTML = "";
+      quoteDiv.classList.add('hidden');
+
+      let charIdx = 0;
+
+      function typeFirstSentence() {
+        if (charIdx < text1.length) {
+          p1.innerHTML = text1.substring(0, charIdx + 1) + '<span class="cursor-blink"></span>';
+          charIdx++;
+          const t = setTimeout(typeFirstSentence, typingSpeed);
+          typingTimeouts.push(t);
+        } else {
+          p1.innerHTML = text1; 
+          charIdx = 0;
+          quoteDiv.classList.remove('hidden');
+          typeSecondSentence();
+        }
+      }
+
+      function typeSecondSentence() {
+        if (charIdx < text2.length) {
+          p2.innerHTML = text2.substring(0, charIdx + 1) + '<span class="cursor-blink"></span>';
+          charIdx++;
+          const t = setTimeout(typeSecondSentence, typingSpeed);
+          typingTimeouts.push(t);
+        } else {
+          p2.innerHTML = text2;
+          charIdx = 0;
+          typeThirdSentence();
+        }
+      }
+
+      function typeThirdSentence() {
+        if (charIdx < text3.length) {
+          p3.innerHTML = text3.substring(0, charIdx + 1) + '<span class="cursor-blink"></span>';
+          charIdx++;
+          const t = setTimeout(typeThirdSentence, typingSpeed);
+          typingTimeouts.push(t);
+        } else {
+          p3.innerHTML = text3; 
+        }
+      }
+
+      typeFirstSentence();
+    }
+
+    function initTypingObserver() {
+      const targetSection = document.getElementById('about');
+      let typingTriggered = false;
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !typingTriggered) {
+              typingTriggered = true;
+              startTypingEffect();
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(targetSection);
+      } else {
+        startTypingEffect();
+      }
+    }
+
+    window.onload = function() {
+      syncBoard();
+      initTypingObserver();
+    };
+  </script>
+
+</body>
+</html>
